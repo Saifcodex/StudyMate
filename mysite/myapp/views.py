@@ -202,3 +202,41 @@ def book_appointment_general(request, general_tutor_id):
         return redirect('user_profile')
 
     return redirect('tutor_list_general')
+
+@login_required
+def book_appointment_chapter(request, chapter_tutor_id):
+    if request.method == "POST":
+        chaptertutor = get_object_or_404(ChapterTutor, id=chapter_tutor_id)
+        student_name = request.POST.get('student_name')
+        phone_number = request.POST.get('phone_number')
+        guardian_name = request.POST.get('guardian_name')
+        guardian_phone = request.POST.get('guardian_phone')
+        class_name = request.POST.get('class_name')
+        subject = request.POST.get('subject')
+        chapter = request.POST.get('chapter')
+        division = request.POST.get('division')
+        district = request.POST.get('district')
+        address = request.POST.get('address')
+        preferred_days = request.POST.get('preferred_days')
+        preferred_time = request.POST.get('preferred_time')
+
+        ChapterAppointment.objects.create(
+            user=request.user,
+            chaptertutor=chaptertutor,
+            student_name=student_name,
+            phone_number=phone_number,
+            guardian_name=guardian_name,
+            guardian_phone=guardian_phone,
+            class_name=class_name,
+            subject=subject,
+            chapter=chapter,
+            division=division,
+            district=district,
+            address=address,
+            preferred_days=preferred_days,
+            preferred_time=preferred_time,
+        )
+        messages.success(request, "Appointment booked successfully.")
+        return redirect('user_profile')
+
+    return redirect('tutor_list_chapter')
