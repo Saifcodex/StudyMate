@@ -316,3 +316,12 @@ def edit_appointment_chapter(request, chapter_appointment_id):
     return render(request, 'edit_appointment_chapter.html', {
         'chapterappointment': chapterappointment,
     })
+
+def cancel_appointment_general(request, general_appointment_id):
+    generalappointment = get_object_or_404(GeneralAppointment, id=general_appointment_id)
+
+    generalappointment.status = 'canceled'
+    generalappointment.save()
+
+    messages.success(request, "Appointment canceled successfully.")
+    return redirect('user_profile')
