@@ -70,3 +70,38 @@ def register(request):
         form = RegisterForm()
 
     return render(request, "register.html", {"form": form})
+
+def user_profile(request):
+    user_profile = UserProfile.objects.get(user=request.user)
+    profile_form = UserProfileForm(instance=user_profile)
+    user_form = UserForm(instance=request.user)
+    general_appointments = GeneralAppointment.objects.filter(user=request.user)
+    chapter_appointments = ChapterAppointment.objects.filter(user=request.user)
+
+    if request.method == "POST":
+        if "delete_account" in request.POST:
+            request.user.delete()
+            auth_logout(request)
+            messages.success(request, "Your account has been deleted.")
+            return redirect('login')
+
+        profile_form = UserProfileForm(request.POST, instance=user_profile)
+        user_form = UserForm(request.POST, instance=request.user)
+
+        if profile_form.is_valid() and user_form.is_valid():
+            profile_form.save()
+            user_form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('user_profile')
+        else:
+            messages.error(request, "Error updating profile. Please check the form.")
+
+    context = {
+        'user_profile': user_profile,
+        'profile_form': profile_form,
+        'user_form': user_form,
+        'general_appointments': general_appointments,
+        'chapter_appointments': chapter_appointments,
+    }
+    return render(request, 'user_profile.html', context)
+
