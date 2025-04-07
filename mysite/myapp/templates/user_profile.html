@@ -1,0 +1,579 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content%}
+
+
+<!-- Main Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <img src="https://via.placeholder.com/40x40" alt="">
+            <span>Study</span>Mate
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Find Tutors
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                        <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                        <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Resources
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="#">Scholarships</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Blog</a>
+                </li>
+            </ul>
+            <div class="btn-container ms-lg-3">
+                {% if user.is_authenticated %}
+                   {% if user.is_superuser %}
+                     <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
+                   {% else %}
+                     <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
+                   {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
+                {% endif %}
+            </div>
+            <div class="btn-container ms-lg-3">
+                {% if user.is_authenticated %}
+                   {% if user.is_superuser %}
+                      <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
+                   {% else %}
+                      <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
+                   {% endif %}
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+<!-- End Navbar -->
+
+{% block extra-styles %}
+<link rel="stylesheet" href="{% static 'css/user_info.css' %}" />
+<link rel="stylesheet" href="{% static 'css/edit_profile.css' %}" />
+{% endblock %}
+
+
+<div class="container my-5">
+    <!-- User Profile Section - Redesigned without image -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm profile-section" id="userProfileView">
+                <div class="card-header profile-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">{{ user_profile.fullname }}</h4>
+                        <span class="profile-badge bg-light text-dark">{{ user_profile.get_gender_display }}</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button id="editButton" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Edit Profile
+                        </button>
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" name="delete_account" class="btn btn-outline-danger">
+                                <i class="fas fa-trash-alt me-2"></i>Delete Account
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="profile-detail-item">
+                                <h6 class="text-muted mb-1">Username</h6>
+                                <p class="fs-5">{{ user_profile.user.username }}</p>
+                            </div>
+                            <div class="profile-detail-item">
+                                <h6 class="text-muted mb-1">Email</h6>
+                                <p class="fs-5">{{ user_profile.user.email }}</p>
+                            </div>
+                            <div class="profile-detail-item">
+                                <h6 class="text-muted mb-1">Mobile</h6>
+                                <p class="fs-5"> {{ user_profile.mobile }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-detail-item">
+                                <h6 class="text-muted mb-1">Age</h6>
+                                <p class="fs-5">{{ user_profile.age }} years</p>
+                            </div>
+                            <div class="profile-detail-item">
+                                <h6 class="text-muted mb-1">Address</h6>
+                                <p class="fs-5">{{ user_profile.address }}</p>
+                            </div>
+                            <div class="profile-detail-item">
+                                <h6 class="text-muted mb-1">Member Since</h6>
+                                <p class="fs-5">{{ user_profile.user.date_joined|date:"F d, Y" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Profile Section - Redesigned without image -->
+            <div class="card shadow-sm profile-section" id="userProfileEdit" style="display: none;">
+                <div class="card-header profile-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Edit Profile</h4>
+                    <button type="button" id="cancelButton" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                </div>
+                <div class="card-body">
+                    <form id="profileForm" method="post">
+                        {% csrf_token %}
+                        <div class="row g-4">
+<!-- User Form Fields -->
+<div class="col-md-6">
+    <div class="form-floating mb-3">
+        {{ user_form.username|add_class:"form-control" }}
+        <label for="{{ user_form.username.id_for_label }}">Username</label>
+    </div>
+    <div class="form-text text-muted">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+</div>
+<div class="form-floating mb-3">
+    {{ user_form.email|add_class:"form-control"|attr:"placeholder:Email" }}
+    <label for="{{ user_form.email.id_for_label }}">Email address</label>
+    <div class="form-text text-muted">Enter a valid email address.</div>
+</div>
+<div class="col-md-6">
+    <div class="form-floating mb-3">
+        {{ user_form.first_name|add_class:"form-control" }}
+        <label for="{{ user_form.first_name.id_for_label }}">First Name</label>
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="form-floating mb-3">
+        {{ user_form.last_name|add_class:"form-control" }}
+        <label for="{{ user_form.last_name.id_for_label }}">Last Name</label>
+    </div>
+</div>
+
+<!-- Profile Form Fields -->
+<div class="col-md-6">
+    <div class="form-floating mb-3">
+        {{ profile_form.age|add_class:"form-control" }}
+        <label for="{{ profile_form.age.id_for_label }}" >Age</label>
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="mb-3">
+        <label for="{{ profile_form.gender.id_for_label }}" class="form-label">Gender</label>
+        {{ profile_form.gender|add_class:"form-select" }}
+    </div>
+</div>
+<div class="col-md-6">
+    <div class="mb-3">
+        <label for="{{ profile_form.mobile.id_for_label }}" class="form-label">Mobile Number</label>
+        <div class="input-group">
+            {{ profile_form.mobile|add_class:"form-control" }}
+        </div>
+    </div>
+</div>
+<div class="col-12">
+    <div class="form-floating mb-3">
+        {{ profile_form.address|add_class:"form-control" }}
+        <label for="{{ profile_form.address.id_for_label }}">Address</label>
+    </div>
+</div>
+
+                            <div class="col-12 mt-3 pt-3 border-top">
+                                <div class="d-flex justify-content-end gap-3">
+                                    <button type="reset" class="btn btn-outline-secondary px-4">
+                                        <i class="fas fa-redo me-2"></i>Reset
+                                    </button>
+                                    <button type="submit" id="saveButton" class="btn btn-success px-4">
+                                        <i class="fas fa-save me-2"></i>Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--General Appointments Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Appointments with General Teachers</h4>
+                </div>
+                <div class="card-body">
+                    {% if general_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tutor</th>
+                                        <th>Salary Range</th>
+                                        <th>Student Info</th>
+                                        <th>Guardian Info</th>
+                                        <th>Class/Subject</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for general_appointment in general_appointments %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if general_appointment.generaltutor.image %}
+                                                <img src="{{ general_appointment.generaltutor.image.url }}"
+                                                     alt="{{ general_appointment.generaltutor.name }}"
+                                                     class="rounded-circle me-3"
+                                                     width="50"
+                                                     height="50">
+                                                {% else %}
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+                                                     style="width: 50px; height: 50px;">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <h6 class="mb-0">{{ general_appointment.generaltutor.name }}</h6>
+                                                    <small class="text-muted">{{ general_appointment.generaltutor.specialty }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>BDT {{ general_appointment.generaltutor.salary_range }}</td>
+                                        <td>
+                                            <h6 class="mb-0">{{ general_appointment.student_name }}</h6>
+                                            <small class="text-muted">{{ general_appointment.phone_number }}</small>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0">{{ general_appointment.guardian_name }}</h6>
+                                            <small class="text-muted">{{ general_appointment.guardian_phone }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">{{ general_appointment.class_name }}</span>
+                                            <span class="badge bg-light text-dark">{{ general_appointment.subject }}</span>
+                                        </td>
+                                        <td>
+                                            <small>{{ general_appointment.district }}, {{ general_appointment.division }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge
+                                                {% if general_appointment.status == 'Approved' %}bg-success
+                                                {% elif general_appointment.status == 'Cancelled' %}bg-danger
+                                                {% elif general_appointment.status == 'Pending' %}bg-warning text-dark
+                                                {% else %}bg-secondary
+                                                {% endif %}">
+                                                {{ general_appointment.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if general_appointment.status == 'Pending' %}
+                                                <div class="d-flex gap-2">
+                                                    <a href="{% url 'edit_appointment_general' general_appointment.id %}"
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       data-bs-toggle="tooltip"
+                                                       title="Edit Appointment">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-outline-danger"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#cancelConfirmationModal"
+                                                            data-appointment-id="{{ general_appointment.id }}"
+                                                            title="Cancel Appointment">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">No actions available</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-calendar-times fa-3x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">No Appointments Scheduled</h5>
+                            <p class="text-muted">You currently have no upcoming appointments with general teachers.</p>
+                            <a href="{% url 'tutor_list_general' %}" class="btn btn-primary mt-3">
+                                Find a Tutor
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Chapter Appointments Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Appointments with Chapterwise Teachers</h4>
+                </div>
+                <div class="card-body">
+                    {% if chapter_appointments %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Tutor</th>
+                                        <th>BDT per Chapter</th>
+                                        <th>Student Info</th>
+                                        <th>Guardian Info</th>
+                                        <th>Class/Subject/Chapter</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for chapter_appointment in chapter_appointments %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if chapter_appointment.chaptertutor.image %}
+                                                <img src="{{ chapter_appointment.chaptertutor.image.url }}"
+                                                     alt="{{ chapter_appointment.chaptertutor.name }}"
+                                                     class="rounded-circle me-3"
+                                                     width="50"
+                                                     height="50">
+                                                {% else %}
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+                                                     style="width: 50px; height: 50px;">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                                {% endif %}
+                                                <div>
+                                                    <h6 class="mb-0">{{ chapter_appointment.chaptertutor.name }}</h6>
+                                                    <small class="text-muted">{{ chapter_appointment.chaptertutor.specialty }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td> {{ chapter_appointment.chaptertutor.salary_per_chapter }} </td>
+                                        <td>
+                                            <h6 class="mb-0">{{ chapter_appointment.student_name }}</h6>
+                                            <small class="text-muted">{{ chapter_appointment.phone_number }}</small>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0">{{ chapter_appointment.guardian_name }}</h6>
+                                            <small class="text-muted">{{ chapter_appointment.guardian_phone }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">{{ chapter_appointment.class_name }}</span>
+                                            <span class="badge bg-light text-dark">{{ chapter_appointment.subject }}</span>
+                                            <span class="badge bg-light text-dark">{{ chapter_appointment.chapter }}</span>
+                                        </td>
+                                        <td>
+                                            <small>{{ chapter_appointment.district }}, {{ chapter_appointment.division }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge
+                                                {% if chapter_appointment.status == 'Approved' %}bg-success
+                                                {% elif chapter_appointment.status == 'Cancelled' %}bg-danger
+                                                {% elif chapter_appointment.status == 'Pending' %}bg-warning text-dark
+                                                {% else %}bg-secondary
+                                                {% endif %}">
+                                                {{ chapter_appointment.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if chapter_appointment.status == 'Pending' %}
+                                                <div class="d-flex gap-2">
+                                                    <a href="{% url 'edit_appointment_chapter' chapter_appointment.id %}"
+                                                       class="btn btn-sm btn-outline-primary"
+                                                       data-bs-toggle="tooltip"
+                                                       title="Edit Appointment">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button class="btn btn-sm btn-outline-danger"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#cancelConfirmationModalChapter"
+                                                            data-appointment-id="{{ chapter_appointment.id }}"
+                                                            title="Cancel Appointment">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">No actions available</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-calendar-times fa-3x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">No Appointments Scheduled</h5>
+                            <p class="text-muted">You currently have no upcoming appointments with chapterwise teachers.</p>
+                            <a href="{% url 'tutor_list_chapter' %}" class="btn btn-primary mt-3">
+                                Find a ChapterWiseTutor
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Confirmation Modal for General Tutors -->
+<div class="modal fade" id="cancelConfirmationModal" tabindex="-1" aria-labelledby="cancelConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="cancelConfirmationModalLabel">Cancel Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this appointment? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="confirmCancelBtn" href="#" class="btn btn-danger">Confirm Cancellation</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Confirmation Modal for Chapter Tutors -->
+<div class="modal fade" id="cancelConfirmationModalChapter" tabindex="-1" aria-labelledby="cancelConfirmationModalChapterLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="cancelConfirmationModalChapterLabel">Cancel Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to cancel this appointment? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="confirmCancelBtnChapter" href="#" class="btn btn-danger">Confirm Cancellation</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Enhanced profile edit/save functionality
+        const viewMode = document.getElementById("userProfileView");
+        const editMode = document.getElementById("userProfileEdit");
+        const editButton = document.getElementById("editButton");
+        const saveButton = document.getElementById("saveButton");
+        const cancelButton = document.getElementById("cancelButton");
+        const profileForm = document.getElementById("profileForm");
+        const avatarUpload = document.getElementById("avatarUpload");
+        const avatarPreview = document.getElementById("profileAvatarPreview");
+
+        // Toggle between view and edit modes
+        editButton.addEventListener("click", () => {
+            viewMode.style.display = "none";
+            editMode.style.display = "block";
+            // Smooth scroll to the edit form
+            editMode.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        cancelButton.addEventListener("click", () => {
+            editMode.style.display = "none";
+            viewMode.style.display = "block";
+            // Reset form fields to their original values
+            profileForm.reset();
+        });
+
+        // Profile picture upload preview
+        if (avatarUpload) {
+            avatarUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        avatarPreview.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple-effect';
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+
+                this.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 1000);
+            });
+        });
+
+        // Existing modal and tooltip functionality remains the same
+        const generalCancelModal = document.getElementById('cancelConfirmationModal');
+        if (generalCancelModal) {
+            generalCancelModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const appointmentId = button.getAttribute('data-appointment-id');
+                const confirmBtn = document.getElementById('confirmCancelBtn');
+                confirmBtn.href = `{% url 'cancel_appointment_general' 0 %}`.replace('0', appointmentId);
+            });
+        }
+
+        const chapterCancelModal = document.getElementById('cancelConfirmationModalChapter');
+        if (chapterCancelModal) {
+            chapterCancelModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const appointmentId = button.getAttribute('data-appointment-id');
+                const confirmBtn = document.getElementById('confirmCancelBtnChapter');
+                confirmBtn.href = `{% url 'cancel_appointment_chapter' 0 %}`.replace('0', appointmentId);
+            });
+        }
+
+        // Initialize Bootstrap tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+{% endblock %}
