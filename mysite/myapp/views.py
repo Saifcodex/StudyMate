@@ -277,3 +277,42 @@ def edit_appointment_general(request, general_appointment_id):
     return render(request, 'edit_appointment_general.html', {
         'generalappointment': generalappointment,
     })
+
+def edit_appointment_chapter(request, chapter_appointment_id):
+    chapterappointment = get_object_or_404(ChapterAppointment, id=chapter_appointment_id )
+
+    if request.method == 'POST':
+        student_name = request.POST.get('student_name')
+        phone_number = request.POST.get('phone_number')
+        guardian_name = request.POST.get('guardian_name')
+        guardian_phone = request.POST.get('guardian_phone')
+        class_name = request.POST.get('class_name')
+        subject = request.POST.get('subject')
+        chapter = request.POST.get('chapter')
+        division = request.POST.get('division')
+        district = request.POST.get('district')
+        address = request.POST.get('address')
+        preferred_days = request.POST.getlist('preferred_days')
+        preferred_time = request.POST.getlist('preferred_time')
+
+        chapterappointment.student_name = student_name
+        chapterappointment.phone_number = phone_number
+        chapterappointment.guardian_name = guardian_name
+        chapterappointment.guardian_phone = guardian_phone
+        chapterappointment.class_name = class_name
+        chapterappointment.subject = subject
+        chapterappointment.chapter = chapter
+        chapterappointment.division = division
+        chapterappointment.district = district
+        chapterappointment.address = address
+        chapterappointment.preferred_days = preferred_days
+        chapterappointment.preferred_time = preferred_time
+
+        chapterappointment.save()
+
+        messages.success(request, "Appointment updated successfully.")
+        return redirect('user_profile')
+
+    return render(request, 'edit_appointment_chapter.html', {
+        'chapterappointment': chapterappointment,
+    })
