@@ -366,3 +366,103 @@ class GeneralAppointment(models.Model):
 
         def __str__(self):
             return f"ChapterWise Tutor Name : {self.name}"
+
+class ChapterAppointment(models.Model):
+
+    DIVISION_CHOICES = [
+        ('Barishal', 'Barishal'),
+        ('Chattogram', 'Chattogram'),
+        ('Dhaka', 'Dhaka'),
+        ('Khulna', 'Khulna'),
+        ('Mymensingh', 'Mymensingh'),
+        ('Rajshahi', 'Rajshahi'),
+        ('Rangpur', 'Rangpur'),
+        ('Sylhet', 'Sylhet'),
+    ]
+    DISTRICT_CHOICES = [
+        ('Barguna', 'Barguna'),
+        ('Barishal', 'Barishal'),
+        ('Bhola', 'Bhola'),
+        ('Jhalokati', 'Jhalokati'),
+        ('Patuakhali', 'Patuakhali'),
+        ('Pirojpur', 'Pirojpur'),
+        ('Bandarban', 'Bandarban'),
+        ('Brahmanbaria', 'Brahmanbaria'),
+        ('Chandpur', 'Chandpur'),
+        ('Chattogram', 'Chattogram'),
+        ('Cumilla', 'Cumilla'),
+        ('Cox\'s Bazar', 'Cox\'s Bazar'),
+        ('Feni', 'Feni'),
+        ('Khagrachhari', 'Khagrachhari'),
+        ('Lakshmipur', 'Lakshmipur'),
+        ('Noakhali', 'Noakhali'),
+        ('Rangamati', 'Rangamati'),
+        ('Dhaka', 'Dhaka'),
+        ('Faridpur', 'Faridpur'),
+        ('Gazipur', 'Gazipur'),
+        ('Gopalganj', 'Gopalganj'),
+        ('Kishoreganj', 'Kishoreganj'),
+        ('Madaripur', 'Madaripur'),
+        ('Manikganj', 'Manikganj'),
+        ('Munshiganj', 'Munshiganj'),
+        ('Narayanganj', 'Narayanganj'),
+        ('Narsingdi', 'Narsingdi'),
+        ('Rajbari', 'Rajbari'),
+        ('Shariatpur', 'Shariatpur'),
+        ('Tangail', 'Tangail'),
+        ('Bagerhat', 'Bagerhat'),
+        ('Chuadanga', 'Chuadanga'),
+        ('Jashore', 'Jashore'),
+        ('Jhenaidah', 'Jhenaidah'),
+        ('Khulna', 'Khulna'),
+        ('Kushtia', 'Kushtia'),
+        ('Magura', 'Magura'),
+        ('Meherpur', 'Meherpur'),
+        ('Narail', 'Narail'),
+        ('Satkhira', 'Satkhira'),
+        ('Jamalpur', 'Jamalpur'),
+        ('Mymensingh', 'Mymensingh'),
+        ('Netrokona', 'Netrokona'),
+        ('Sherpur', 'Sherpur'),
+        ('Bogra', 'Bogra'),
+        ('Joypurhat', 'Joypurhat'),
+        ('Naogaon', 'Naogaon'),
+        ('Natore', 'Natore'),
+        ('Chapainawabganj', 'Chapainawabganj'),
+        ('Pabna', 'Pabna'),
+        ('Rajshahi', 'Rajshahi'),
+        ('Sirajganj', 'Sirajganj'),
+        ('Dinajpur', 'Dinajpur'),
+        ('Gaibandha', 'Gaibandha'),
+        ('Kurigram', 'Kurigram'),
+        ('Lalmonirhat', 'Lalmonirhat'),
+        ('Nilphamari', 'Nilphamari'),
+        ('Panchagarh', 'Panchagarh'),
+        ('Rangpur', 'Rangpur'),
+        ('Thakurgaon', 'Thakurgaon'),
+        ('Habiganj', 'Habiganj'),
+        ('Moulvibazar', 'Moulvibazar'),
+        ('Sunamganj', 'Sunamganj'),
+        ('Sylhet', 'Sylhet'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chapterappointments')
+    STATUS_CHOICES = [('Pending', 'Pending'), ('Approved', 'Approved'), ('Cancelled', 'Cancelled')]
+
+    chaptertutor = models.ForeignKey(ChapterTutor, on_delete=models.CASCADE)
+    student_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=20)
+    guardian_name = models.CharField(max_length=100)
+    guardian_phone = models.CharField(max_length=20)
+    class_name = models.CharField(max_length=50)
+    subject = models.CharField(max_length=100)
+    chapter = models.CharField(max_length=100)
+    division = models.CharField(max_length=20, choices=DIVISION_CHOICES, default='Dhaka')
+    district = models.CharField(max_length=20, choices=DISTRICT_CHOICES, default='Dhaka')
+    address = models.CharField(max_length=100)
+    preferred_days = models.CharField(max_length=100)
+    preferred_time = models.CharField(max_length=100)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+
+    def __str__(self):
+        return f"Student Name : {self.student_name} - ChapterWise Teacher Name : {self.chaptertutor.name}"
