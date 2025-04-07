@@ -25,3 +25,8 @@ def contact(request):
 
 def faq(request):
     return render(request, 'faq.html')
+
+
+
+def custom_error(request, ):
+    return render(request, 'error.html')
