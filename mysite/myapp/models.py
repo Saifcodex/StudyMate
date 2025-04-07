@@ -248,7 +248,7 @@ class GeneralAppointment(models.Model):
     def __str__(self):
         return f"Student Name : {self.student_name} - General Teacher Name : {self.generaltutor.name}"
 
-    class ChapterTutor(models.Model):
+class ChapterTutor(models.Model):
         DIVISION_CHOICES = [
             ('Barishal', 'Barishal'),
             ('Chattogram', 'Chattogram'),
