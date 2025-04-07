@@ -139,3 +139,30 @@ def tutor_list_general(request):
         'generaltutor': generaltutor,
         'specialty': dict(GeneralTutor.SPECIALTY_CHOICES).get(specialty, 'All'),
     })
+
+def tutor_list_chapter(request):
+    specialty = request.GET.get('specialty')
+    gender = request.GET.get('gender')
+    medium = request.GET.get('medium')
+    division = request.GET.get('division')
+    district = request.GET.get('district')
+    background = request.GET.get('background')
+
+    chaptertutor = ChapterTutor.objects.all()
+    if specialty:
+        chaptertutor = chaptertutor.filter(specialty__icontains=specialty)
+    if gender:
+        chaptertutor = chaptertutor.filter(gender__iexact=gender)
+    if medium:
+        chaptertutor = chaptertutor.filter(medium__icontains=medium)
+    if division:
+        chaptertutor = chaptertutor.filter(division__icontains=division)
+    if district:
+        chaptertutor = chaptertutor.filter(district__icontains=district)
+    if background:
+        chaptertutor = chaptertutor.filter(background__icontains=background)
+
+    return render(request, 'tutor_list_chapter.html', {
+        'chaptertutor': chaptertutor,
+        'specialty': dict(ChapterTutor.SPECIALTY_CHOICES).get(specialty, 'All'),
+    })
