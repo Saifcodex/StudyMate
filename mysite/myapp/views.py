@@ -240,3 +240,40 @@ def book_appointment_chapter(request, chapter_tutor_id):
         return redirect('user_profile')
 
     return redirect('tutor_list_chapter')
+
+def edit_appointment_general(request, general_appointment_id):
+    generalappointment = get_object_or_404(GeneralAppointment, id=general_appointment_id )
+
+    if request.method == 'POST':
+        student_name = request.POST.get('student_name')
+        phone_number = request.POST.get('phone_number')
+        guardian_name = request.POST.get('guardian_name')
+        guardian_phone = request.POST.get('guardian_phone')
+        class_name = request.POST.get('class_name')
+        subject = request.POST.get('subject')
+        division = request.POST.get('division')
+        district = request.POST.get('district')
+        address = request.POST.get('address')
+        preferred_days = request.POST.getlist('preferred_days')
+        preferred_time = request.POST.getlist('preferred_time')
+
+        generalappointment.student_name = student_name
+        generalappointment.phone_number = phone_number
+        generalappointment.guardian_name = guardian_name
+        generalappointment.guardian_phone = guardian_phone
+        generalappointment.class_name = class_name
+        generalappointment.subject = subject
+        generalappointment.division = division
+        generalappointment.district = district
+        generalappointment.address = address
+        generalappointment.preferred_days = preferred_days
+        generalappointment.preferred_time = preferred_time
+
+        generalappointment.save()
+
+        messages.success(request, "Appointment updated successfully.")
+        return redirect('user_profile')
+
+    return render(request, 'edit_appointment_general.html', {
+        'generalappointment': generalappointment,
+    })
