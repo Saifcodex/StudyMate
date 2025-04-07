@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content%}
+<!-- Main Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="https://via.placeholder.com/40x40" alt="" >
+                <span>Study</span>Mate
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Find Tutors
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Resources
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="#">Scholarships</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Blog</a>
+                    </li>
+                </ul>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                         <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
+                       {% else %}
+                         <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
+                    {% endif %}
+                </div>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                          <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
+                       {% else %}
+                          <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+<!-- End Navbar -->
+
+<!-- Registration Form -->
+<div class="container d-flex justify-content-center align-items-center mt-5 mb-5">
+    <div class="card shadow p-4 w-100" style="max-width: 600px;">
+        <h2 class="text-center mb-4">Create Your Account</h2>
+        <form method="post" id="registration-form">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+        </form>
+    </div>
+</div>
+<!-- End Registration Form -->
+
+{% endblock %}
