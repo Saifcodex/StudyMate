@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content%}
+<!-- Main Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="https://via.placeholder.com/40x40" alt="" >
+                <span>Study</span>Mate
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Find Tutors
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Resources
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="#">Scholarships</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Blog</a>
+                    </li>
+                </ul>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                         <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
+                       {% else %}
+                         <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
+                    {% endif %}
+                </div>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                          <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
+                       {% else %}
+                          <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+<!-- End Navbar -->
+
+<!-- Main Content -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Edit Appointment</h2>
+                <a href="{% url 'user_profile' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                </a>
+            </div>
+
+            <!-- Appointment Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-calendar-edit me-2"></i>Appointment Details</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Student Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-user-graduate me-2"></i>Student Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="studentName" class="form-label">Student Name</label>
+                                    <input type="text" class="form-control" id="studentName" name="student_name"
+                                           value="{{ general_appointment.student_name }}" required>
+                                    <div class="invalid-feedback">
+                                        Please provide student name.
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phoneNumber" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phoneNumber" name="phone_number"
+                                           value="{{ general_appointment.phone_number }}" required>
+                                    <div class="invalid-feedback">
+                                        Please provide phone number.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Guardian Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-user-shield me-2"></i>Guardian Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="guardianName" class="form-label">Guardian Name</label>
+                                    <input type="text" class="form-control" id="guardianName" name="guardian_name"
+                                           value="{{ general_appointment.guardian_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="guardianPhone" class="form-label">Guardian Phone</label>
+                                    <input type="tel" class="form-control" id="guardianPhone" name="guardian_phone"
+                                           value="{{ general_appointment.guardian_phone }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Class Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-book-open me-2"></i>Class Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="className" class="form-label">Class Name</label>
+                                    <input type="text" class="form-control" id="className" name="class_name"
+                                           value="{{ general_appointment.class_name }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="subject" name="subject"
+                                           value="{{ general_appointment.subject }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-map-marker-alt me-2"></i>Location Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="division" class="form-label">Division</label>
+                                    <select id="division" name="division" class="form-select" required>
+                                        <option value="" disabled>Select Division</option>
+                                        <option value="Barishal" >Barishal</option>
+                                        <option value="Chattogram" >Chattogram</option>
+                                        <option value="Dhaka" >Dhaka</option>
+                                        <option value="Khulna" >Khulna</option>
+                                        <option value="Mymensingh" >Mymensingh</option>
+                                        <option value="Rajshahi" >Rajshahi</option>
+                                        <option value="Rangpur" >Rangpur</option>
+                                        <option value="Sylhet" >Sylhet</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="district" class="form-label">District</label>
+                                    <select id="district" name="district" class="form-select" required>
+                                        <option value="" disabled>Select District</option>
+                                        <option value="Barguna">Barguna</option>
+                                        <option value="Barishal">Barishal</option>
+                                        <option value="Bhola">Bhola</option>
+                                        <option value="Jhalokati">Jhalokati</option>
+                                        <option value="Patuakhali">Patuakhali</option>
+                                        <option value="Pirojpur">Pirojpur</option>
+                                        <option value="Bandarban">Bandarban</option>
+                                        <option value="Brahmanbaria">Brahmanbaria</option>
+                                        <option value="Chandpur">Chandpur</option>
+                                        <option value="Chattogram">Chattogram</option>
+                                        <option value="Cumilla">Cumilla</option>
+                                        <option value="Cox's Bazar">Cox's Bazar</option>
+                                        <option value="Feni">Feni</option>
+                                        <option value="Khagrachhari">Khagrachhari</option>
+                                        <option value="Lakshmipur">Lakshmipur</option>
+                                        <option value="Noakhali">Noakhali</option>
+                                        <option value="Rangamati">Rangamati</option>
+                                        <option value="Dhaka">Dhaka</option>
+                                        <option value="Faridpur">Faridpur</option>
+                                        <option value="Gazipur">Gazipur</option>
+                                        <option value="Gopalganj">Gopalganj</option>
+                                        <option value="Kishoreganj">Kishoreganj</option>
+                                        <option value="Madaripur">Madaripur</option>
+                                        <option value="Manikganj">Manikganj</option>
+                                        <option value="Munshiganj">Munshiganj</option>
+                                        <option value="Narayanganj">Narayanganj</option>
+                                        <option value="Narsingdi">Narsingdi</option>
+                                        <option value="Rajbari">Rajbari</option>
+                                        <option value="Shariatpur">Shariatpur</option>
+                                        <option value="Tangail">Tangail</option>
+                                        <option value="Bagerhat">Bagerhat</option>
+                                        <option value="Chuadanga">Chuadanga</option>
+                                        <option value="Jashore">Jashore</option>
+                                        <option value="Jhenaidah">Jhenaidah</option>
+                                        <option value="Khulna">Khulna</option>
+                                        <option value="Kushtia">Kushtia</option>
+                                        <option value="Magura">Magura</option>
+                                        <option value="Meherpur">Meherpur</option>
+                                        <option value="Narail">Narail</option>
+                                        <option value="Satkhira">Satkhira</option>
+                                        <option value="Jamalpur">Jamalpur</option>
+                                        <option value="Mymensingh">Mymensingh</option>
+                                        <option value="Netrokona">Netrokona</option>
+                                        <option value="Sherpur">Sherpur</option>
+                                        <option value="Bogra">Bogra</option>
+                                        <option value="Joypurhat">Joypurhat</option>
+                                        <option value="Naogaon">Naogaon</option>
+                                        <option value="Natore">Natore</option>
+                                        <option value="Chapainawabganj">Chapainawabganj</option>
+                                        <option value="Pabna">Pabna</option>
+                                        <option value="Rajshahi">Rajshahi</option>
+                                        <option value="Sirajganj">Sirajganj</option>
+                                        <option value="Dinajpur">Dinajpur</option>
+                                        <option value="Gaibandha">Gaibandha</option>
+                                        <option value="Kurigram">Kurigram</option>
+                                        <option value="Lalmonirhat">Lalmonirhat</option>
+                                        <option value="Nilphamari">Nilphamari</option>
+                                        <option value="Panchagarh">Panchagarh</option>
+                                        <option value="Rangpur">Rangpur</option>
+                                        <option value="Thakurgaon">Thakurgaon</option>
+                                        <option value="Habiganj">Habiganj</option>
+                                        <option value="Moulvibazar">Moulvibazar</option>
+                                        <option value="Sunamganj">Sunamganj</option>
+                                        <option value="Sylhet">Sylhet</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address" name="address"
+                                           value="{{ general_appointment.address }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Schedule Information Section -->
+                        <div class="mb-4">
+                            <h6 class="text-primary mb-3"><i class="fas fa-clock me-2"></i>Schedule Information</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="preferred_days" class="form-label">Preferred Days</label>
+                                    <input type="text" class="form-control" id="preferred_days" name="preferred_days"
+                                           value="{{ general_appointment.preferred_days }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="preferred_time" class="form-label">Preferred Time</label>
+                                    <input type="text" class="form-control" id="preferred_time" name="preferred_time"
+                                           value="{{ general_appointment.preferred_time }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="fas fa-save me-2"></i>Update Appointment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Validation Script -->
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function () {
+  'use strict'
+
+  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+  var forms = document.querySelectorAll('.needs-validation')
+
+  // Loop over them and prevent submission
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+<script>
+document.getElementById('division').addEventListener('change', function() {
+    const division = this.value;
+    const districtSelect = document.getElementById('district');
+    districtSelect.disabled = false;
+});
+</script>
+
+{% endblock %}
