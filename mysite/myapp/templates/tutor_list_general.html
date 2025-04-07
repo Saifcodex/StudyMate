@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content%}
+<!-- Main Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="https://via.placeholder.com/40x40" alt="" >
+                <span>Study</span>Mate
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Find Tutors
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Resources
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="#">Scholarships</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Blog</a>
+                    </li>
+                </ul>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                         <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
+                       {% else %}
+                         <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
+                    {% endif %}
+                </div>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                          <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
+                       {% else %}
+                          <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+<!-- End Navbar -->
+
+{% block extra-styles %}
+    <link rel="stylesheet" href="{% static 'css/tutor_list_general.css' %}">
+{% endblock %}
+
+<!-- Main Content -->
+<div class="container my-5">
+    <div class="row">
+        <!-- Filter Section -->
+        <div class="col-md-4 col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Sort & Filter</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{% url 'tutor_list_general' %}">
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-2">Gender</h6>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" value="Male" id="male" {% if request.GET.gender == "Male" %}checked{% endif %}>
+                                <label class="form-check-label" for="male">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" value="Female" id="female" {% if request.GET.gender == "Female" %}checked{% endif %}>
+                                <label class="form-check-label" for="female">Female</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="specialty" class="form-label fw-bold">Specialities</label>
+                            <select class="form-select" name="specialty" id="specialty">
+                                <option selected disabled>Select Specialty</option>
+                                <option value="Science" {% if request.GET.specialty == "Science" %}selected{% endif %}>Science</option>
+                                <option value="Biology" {% if request.GET.specialty == "Biology" %}selected{% endif %}>Biology</option>
+                                <option value="Laws" {% if request.GET.specialty == "Laws" %}selected{% endif %}>Laws</option>
+                                <option value="Math" {% if request.GET.specialty == "Math" %}selected{% endif %}>Math</option>
+                                <option value="Chemistry" {% if request.GET.specialty == "Chemistry" %}selected{% endif %}>Chemistry</option>
+                                <option value="Physics" {% if request.GET.specialty == "Physics" %}selected{% endif %}>Physics</option>
+                                <option value="Economics" {% if request.GET.specialty == "Economics" %}selected{% endif %}>Economics</option>
+                                <option value="History" {% if request.GET.specialty == "History" %}selected{% endif %}>History</option>
+                                <option value="Sociology" {% if request.GET.specialty == "Sociology" %}selected{% endif %}>Sociology</option>
+                                <option value="English" {% if request.GET.specialty == "English" %}selected{% endif %}>English</option>
+                                <option value="Politics" {% if request.GET.specialty == "Politics" %}selected{% endif %}>Politics</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="division" class="form-label fw-bold">Division</label>
+                            <select class="form-select" name="division" id="division">
+                                <option selected disabled>Select Division</option>
+                                <option value="Barishal" {% if request.GET.division == "Barishal" %}selected{% endif %}>Barishal</option>
+                                <option value="Chattogram" {% if request.GET.division == "Chattogram" %}selected{% endif %}>Chattogram</option>
+                                <option value="Dhaka" {% if request.GET.division == "Dhaka" %}selected{% endif %}>Dhaka</option>
+                                <option value="Khulna" {% if request.GET.division == "Khulna" %}selected{% endif %}>Khulna</option>
+                                <option value="Mymensingh" {% if request.GET.division == "Mymensingh" %}selected{% endif %}>Mymensingh</option>
+                                <option value="Rajshahi" {% if request.GET.division == "Rajshahi" %}selected{% endif %}>Rajshahi</option>
+                                <option value="Rangpur" {% if request.GET.division == "Rangpur" %}selected{% endif %}>Rangpur</option>
+                                <option value="Sylhet" {% if request.GET.division == "Sylhet" %}selected{% endif %}>Sylhet</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="district" class="form-label fw-bold">District</label>
+                            <select class="form-select" name="district" id="district">
+                                <option selected disabled>Select District</option>
+                                <option value="Barguna" {% if request.GET.district == "Barguna" %}selected{% endif %}>Barguna</option>
+                                <option value="Barishal" {% if request.GET.district == "Barishal" %}selected{% endif %}>Barishal</option>
+                                <option value="Bhola" {% if request.GET.district == "Bhola" %}selected{% endif %}>Bhola</option>
+                                <option value="Jhalokati" {% if request.GET.district == "Jhalokati" %}selected{% endif %}>Jhalokati</option>
+                                <option value="Patuakhali" {% if request.GET.district == "Patuakhali" %}selected{% endif %}>Patuakhali</option>
+                                <option value="Pirojpur" {% if request.GET.district == "Pirojpur" %}selected{% endif %}>Pirojpur</option>
+                                <option value="Bandarban" {% if request.GET.district == "Bandarban" %}selected{% endif %}>Bandarban</option>
+                                <option value="Brahmanbaria" {% if request.GET.district == "Brahmanbaria" %}selected{% endif %}>Brahmanbaria</option>
+                                <option value="Chandpur" {% if request.GET.district == "Chandpur" %}selected{% endif %}>Chandpur</option>
+                                <option value="Chattogram" {% if request.GET.district == "Chattogram" %}selected{% endif %}>Chattogram</option>
+                                <option value="Cumilla" {% if request.GET.district == "Cumilla" %}selected{% endif %}>Cumilla</option>
+                                <option value="Cox\'s Bazar" {% if request.GET.district == "Cox\'s Bazar" %}selected{% endif %}>Cox's Bazar</option>
+                                <option value="Feni" {% if request.GET.district == "Feni" %}selected{% endif %}>Feni</option>
+                                <option value="Khagrachhari" {% if request.GET.district == "Khagrachhari" %}selected{% endif %}>Khagrachhari</option>
+                                <option value="Lakshmipur" {% if request.GET.district == "Lakshmipur" %}selected{% endif %}>Lakshmipur</option>
+                                <option value="Noakhali" {% if request.GET.district == "Noakhali" %}selected{% endif %}>Noakhali</option>
+                                <option value="Rangamati" {% if request.GET.district == "Rangamati" %}selected{% endif %}>Rangamati</option>
+                                <option value="Dhaka" {% if request.GET.district == "Dhaka" %}selected{% endif %}>Dhaka</option>
+                                <option value="Faridpur" {% if request.GET.district == "Faridpur" %}selected{% endif %}>Faridpur</option>
+                                <option value="Gazipur" {% if request.GET.district == "Gazipur" %}selected{% endif %}>Gazipur</option>
+                                <option value="Gopalganj" {% if request.GET.district == "Gopalganj" %}selected{% endif %}>Gopalganj</option>
+                                <option value="Kishoreganj" {% if request.GET.district == "Kishoreganj" %}selected{% endif %}>Kishoreganj</option>
+                                <option value="Madaripur" {% if request.GET.district == "Madaripur" %}selected{% endif %}>Madaripur</option>
+                                <option value="Manikganj" {% if request.GET.district == "Manikganj" %}selected{% endif %}>Manikganj</option>
+                                <option value="Munshiganj" {% if request.GET.district == "Munshiganj" %}selected{% endif %}>Munshiganj</option>
+                                <option value="Narayanganj" {% if request.GET.district == "Narayanganj" %}selected{% endif %}>Narayanganj</option>
+                                <option value="Narsingdi" {% if request.GET.district == "Narsingdi" %}selected{% endif %}>Narsingdi</option>
+                                <option value="Rajbari" {% if request.GET.district == "Rajbari" %}selected{% endif %}>Rajbari</option>
+                                <option value="Shariatpur" {% if request.GET.district == "Shariatpur" %}selected{% endif %}>Shariatpur</option>
+                                <option value="Tangail" {% if request.GET.district == "Tangail" %}selected{% endif %}>Tangail</option>
+                                <option value="Bagerhat" {% if request.GET.district == "Bagerhat" %}selected{% endif %}>Bagerhat</option>
+                                <option value="Chuadanga" {% if request.GET.district == "Chuadanga" %}selected{% endif %}>Chuadanga</option>
+                                <option value="Jashore" {% if request.GET.district == "Jashore" %}selected{% endif %}>Jashore</option>
+                                <option value="Jhenaidah" {% if request.GET.district == "Jhenaidah" %}selected{% endif %}>Jhenaidah</option>
+                                <option value="Khulna" {% if request.GET.district == "Khulna" %}selected{% endif %}>Khulna</option>
+                                <option value="Kushtia" {% if request.GET.district == "Kushtia" %}selected{% endif %}>Kushtia</option>
+                                <option value="Magura" {% if request.GET.district == "Magura" %}selected{% endif %}>Magura</option>
+                                <option value="Meherpur" {% if request.GET.district == "Meherpur" %}selected{% endif %}>Meherpur</option>
+                                <option value="Narail" {% if request.GET.district == "Narail" %}selected{% endif %}>Narail</option>
+                                <option value="Satkhira" {% if request.GET.district == "Satkhira" %}selected{% endif %}>Satkhira</option>
+                                <option value="Jamalpur" {% if request.GET.district == "Jamalpur" %}selected{% endif %}>Jamalpur</option>
+                                <option value="Mymensingh" {% if request.GET.district == "Mymensingh" %}selected{% endif %}>Mymensingh</option>
+                                <option value="Netrokona" {% if request.GET.district == "Netrokona" %}selected{% endif %}>Netrokona</option>
+                                <option value="Sherpur" {% if request.GET.district == "Sherpur" %}selected{% endif %}>Sherpur</option>
+                                <option value="Bogra" {% if request.GET.district == "Bogra" %}selected{% endif %}>Bogra</option>
+                                <option value="Joypurhat" {% if request.GET.district == "Joypurhat" %}selected{% endif %}>Joypurhat</option>
+                                <option value="Naogaon" {% if request.GET.district == "Naogaon" %}selected{% endif %}>Naogaon</option>
+                                <option value="Natore" {% if request.GET.district == "Natore" %}selected{% endif %}>Natore</option>
+                                <option value="Chapainawabganj" {% if request.GET.district == "Chapainawabganj" %}selected{% endif %}>Chapainawabganj</option>
+                                <option value="Pabna" {% if request.GET.district == "Pabna" %}selected{% endif %}>Pabna</option>
+                                <option value="Rajshahi" {% if request.GET.district == "Rajshahi" %}selected{% endif %}>Rajshahi</option>
+                                <option value="Sirajganj" {% if request.GET.district == "Sirajganj" %}selected{% endif %}>Sirajganj</option>
+                                <option value="Dinajpur" {% if request.GET.district == "Dinajpur" %}selected{% endif %}>Dinajpur</option>
+                                <option value="Gaibandha" {% if request.GET.district == "Gaibandha" %}selected{% endif %}>Gaibandha</option>
+                                <option value="Kurigram" {% if request.GET.district == "Kurigram" %}selected{% endif %}>Kurigram</option>
+                                <option value="Lalmonirhat" {% if request.GET.district == "Lalmonirhat" %}selected{% endif %}>Lalmonirhat</option>
+                                <option value="Nilphamari" {% if request.GET.district == "Nilphamari" %}selected{% endif %}>Nilphamari</option>
+                                <option value="Panchagarh" {% if request.GET.district == "Panchagarh" %}selected{% endif %}>Panchagarh</option>
+                                <option value="Rangpur" {% if request.GET.district == "Rangpur" %}selected{% endif %}>Rangpur</option>
+                                <option value="Thakurgaon" {% if request.GET.district == "Thakurgaon" %}selected{% endif %}>Thakurgaon</option>
+                                <option value="Habiganj" {% if request.GET.district == "Habiganj" %}selected{% endif %}>Habiganj</option>
+                                <option value="Moulvibazar" {% if request.GET.district == "Moulvibazar" %}selected{% endif %}>Moulvibazar</option>
+                                <option value="Sunamganj" {% if request.GET.district == "Sunamganj" %}selected{% endif %}>Sunamganj</option>
+                                <option value="Sylhet" {% if request.GET.district == "Sylhet" %}selected{% endif %}>Sylhet</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="background" class="form-label fw-bold">Background</label>
+                            <select class="form-select" name="background" id="background">
+                                <option selected disabled>Select Background</option>
+                                <option value="Science" {% if request.GET.background == "Science" %}selected{% endif %}>Science</option>
+                                <option value="Commerce" {% if request.GET.background == "Commerce" %}selected{% endif %}>Commerce</option>
+                                <option value="Arts" {% if request.GET.background == "Arts" %}selected{% endif %}>Arts</option>
+                                <option value="Engineering" {% if request.GET.background == "Engineering" %}selected{% endif %}>Engineering</option>
+                                <option value="Medical" {% if request.GET.background == "Medical" %}selected{% endif %}>Medical</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="medium" class="form-label fw-bold">Medium</label>
+                            <select class="form-select" name="medium" id="medium">
+                                <option selected disabled>Select Medium</option>
+                                <option value="Bangla" {% if request.GET.medium == "Bangla" %}selected{% endif %}>Bangla</option>
+                                <option value="English" {% if request.GET.medium == "English" %}selected{% endif %}>English</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearFilters()">Clear Filters</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutor List Section -->
+        <div class="col-md-8 col-lg-9">
+            {% if generaltutor %}
+                <div class="row row-cols-1 row-cols-md-2 g-4">
+                    {% for tutor in generaltutor %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm">
+                            <div class="row g-0">
+                                <div class="col-md-4 d-flex align-items-center justify-content-center p-3">
+                                    <img src="{{ tutor.image.url }}" alt="{{ tutor.name }}" class="img-fluid rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ tutor.name }}</h5>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-graduation-cap me-2"></i>{{ tutor.qualification }}
+                                        </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-star me-2"></i>{{ tutor.specialty }} ({{ tutor.tuition_experience }} years exp)
+                                        </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-language me-2"></i>{{ tutor.medium }} medium
+                                        </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-map-marker-alt me-2"></i>{{ tutor.district }}, {{ tutor.division }}
+                                        </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fas fa-money-bill-wave me-2"></i>BDT  {{ tutor.salary_range }}
+                                        </p>
+                                        <p class="card-text text-muted mb-3">
+                                            <i class="fa-solid fa-graduation-cap"></i> {{ tutor.background }}
+                                        </p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge bg-primary">{{ tutor.availability }}</span>
+                                            <button class="btn btn-sm btn-primary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#bookAppointmentModal"
+                                                    data-tutor-id="{{ tutor.id }}">
+                                                Book Appointment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center py-4">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>No tutors found matching your criteria</h4>
+                    <p class="mb-0">Try adjusting your filters or check back later</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Appointment Modal -->
+<div class="modal fade" id="bookAppointmentModal" tabindex="-1" aria-labelledby="bookAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookAppointmentModalLabel">Book an Appointment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="bookAppointmentForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="studentName" class="form-label">Student Name</label>
+                            <input type="text" class="form-control" id="studentName" name="student_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phoneNumber" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phoneNumber" name="phone_number" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="guardianName" class="form-label">Guardian Name</label>
+                            <input type="text" class="form-control" id="guardianName" name="guardian_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="guardianPhone" class="form-label">Guardian Phone</label>
+                            <input type="text" class="form-control" id="guardianPhone" name="guardian_phone" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="className" class="form-label">Select Class</label>
+                            <input type="text" class="form-control" id="className" name="class_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="subject" class="form-label">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="division" class="form-label">Division</label>
+                            <select class="form-select" id="division" name="division" required>
+                                <option selected disabled>Select Division</option>
+                                <option value="Barishal" >Barishal</option>
+                                <option value="Chattogram" >Chattogram</option>
+                                <option value="Dhaka" >Dhaka</option>
+                                <option value="Khulna" >Khulna</option>
+                                <option value="Mymensingh" >Mymensingh</option>
+                                <option value="Rajshahi" >Rajshahi</option>
+                                <option value="Rangpur" >Rangpur</option>
+                                <option value="Sylhet" >Sylhet</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="district" class="form-label">District</label>
+                            <select class="form-select" id="district" name="district" required>
+                                <option selected disabled>Select District</option>
+                                <option value="Barguna">Barguna</option>
+                                <option value="Barishal">Barishal</option>
+                                <option value="Bhola">Bhola</option>
+                                <option value="Jhalokati">Jhalokati</option>
+                                <option value="Patuakhali">Patuakhali</option>
+                                <option value="Pirojpur">Pirojpur</option>
+                                <option value="Bandarban">Bandarban</option>
+                                <option value="Brahmanbaria">Brahmanbaria</option>
+                                <option value="Chandpur">Chandpur</option>
+                                <option value="Chattogram">Chattogram</option>
+                                <option value="Cumilla">Cumilla</option>
+                                <option value="Cox's Bazar">Cox's Bazar</option>
+                                <option value="Feni">Feni</option>
+                                <option value="Khagrachhari">Khagrachhari</option>
+                                <option value="Lakshmipur">Lakshmipur</option>
+                                <option value="Noakhali">Noakhali</option>
+                                <option value="Rangamati">Rangamati</option>
+                                <option value="Dhaka">Dhaka</option>
+                                <option value="Faridpur">Faridpur</option>
+                                <option value="Gazipur">Gazipur</option>
+                                <option value="Gopalganj">Gopalganj</option>
+                                <option value="Kishoreganj">Kishoreganj</option>
+                                <option value="Madaripur">Madaripur</option>
+                                <option value="Manikganj">Manikganj</option>
+                                <option value="Munshiganj">Munshiganj</option>
+                                <option value="Narayanganj">Narayanganj</option>
+                                <option value="Narsingdi">Narsingdi</option>
+                                <option value="Rajbari">Rajbari</option>
+                                <option value="Shariatpur">Shariatpur</option>
+                                <option value="Tangail">Tangail</option>
+                                <option value="Bagerhat">Bagerhat</option>
+                                <option value="Chuadanga">Chuadanga</option>
+                                <option value="Jashore">Jashore</option>
+                                <option value="Jhenaidah">Jhenaidah</option>
+                                <option value="Khulna">Khulna</option>
+                                <option value="Kushtia">Kushtia</option>
+                                <option value="Magura">Magura</option>
+                                <option value="Meherpur">Meherpur</option>
+                                <option value="Narail">Narail</option>
+                                <option value="Satkhira">Satkhira</option>
+                                <option value="Jamalpur">Jamalpur</option>
+                                <option value="Mymensingh">Mymensingh</option>
+                                <option value="Netrokona">Netrokona</option>
+                                <option value="Sherpur">Sherpur</option>
+                                <option value="Bogra">Bogra</option>
+                                <option value="Joypurhat">Joypurhat</option>
+                                <option value="Naogaon">Naogaon</option>
+                                <option value="Natore">Natore</option>
+                                <option value="Chapainawabganj">Chapainawabganj</option>
+                                <option value="Pabna">Pabna</option>
+                                <option value="Rajshahi">Rajshahi</option>
+                                <option value="Sirajganj">Sirajganj</option>
+                                <option value="Dinajpur">Dinajpur</option>
+                                <option value="Gaibandha">Gaibandha</option>
+                                <option value="Kurigram">Kurigram</option>
+                                <option value="Lalmonirhat">Lalmonirhat</option>
+                                <option value="Nilphamari">Nilphamari</option>
+                                <option value="Panchagarh">Panchagarh</option>
+                                <option value="Rangpur">Rangpur</option>
+                                <option value="Thakurgaon">Thakurgaon</option>
+                                <option value="Habiganj">Habiganj</option>
+                                <option value="Moulvibazar">Moulvibazar</option>
+                                <option value="Sunamganj">Sunamganj</option>
+                                <option value="Sylhet">Sylhet</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="preferredDays" class="form-label">Preferred Days</label>
+                            <input type="text" class="form-control" id="preferredDays" name="preferred_days" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="preferredTime" class="form-label">Preferred Time</label>
+                            <input type="text" class="form-control" id="preferredTime" name="preferred_time" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function clearFilters() {
+    window.location.href = "{% url 'tutor_list_general' %}";
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const appointmentModal = document.getElementById('bookAppointmentModal');
+    if (appointmentModal) {
+        appointmentModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const tutorId = button.getAttribute('data-tutor-id');
+            const form = document.getElementById('bookAppointmentForm');
+            form.action = `/book_appointment_general/${tutorId}/`;
+        });
+    }
+});
+</script>
+
+{% endblock %}
