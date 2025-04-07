@@ -1,12 +1,364 @@
-<!DOCTYPE html>
+{% extends "base.html" %}
 {% load static %}
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="{% static 'css/style.css '%}">
-</head>
-<body>
-<h1>Welcome to the StudyMate Webpage</h1>
-</body>
-</html>
+{% block content%}
+<!-- Main Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="https://via.placeholder.com/40x40" alt="" >
+                <span>Study</span>Mate
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Find Tutors
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Resources
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="#">Scholarships</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Blog</a>
+                    </li>
+                </ul>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                         <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
+                       {% else %}
+                         <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
+                    {% endif %}
+                </div>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                          <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
+                       {% else %}
+                          <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+<!-- End Navbar -->
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="animate">Your Complete Learning Solution</h1>
+            <p class="animate delay-1">Find the perfect tutor, get study materials, and discover scholarship opportunities - all in one place</p>
+            <div class="mt-4 animate delay-2">
+                <a href="{% url 'tutor_list_general' %}" class="btn btn-custom btn-lg me-2">Find a Tutor</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg">Join Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h2>Why Choose StudyMate?</h2>
+                    <p class="lead">We provide everything you need for academic success</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4 animate">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <h3>Flexible Tutoring</h3>
+                        <p>Choose between general subject tutoring or pay-per-chapter sessions to focus exactly on what you need help with.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 animate delay-1">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3>Study Resources</h3>
+                        <p>Access to textbooks, stationery, and study materials all in one place with convenient delivery options.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 animate delay-2">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3>Scholarship Updates</h3>
+                        <p>Stay informed about the latest scholarship opportunities and application deadlines.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tutors Section -->
+    <section class="tutors">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h2>Our Top Tutors</h2>
+                    <p class="lead">Learn from experienced educators in various subjects</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6 animate">
+                    <div class="tutor-card">
+                        <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="Tutor" class="tutor-img">
+                        <div class="tutor-badge">Mathematics</div>
+                        <div class="p-4">
+                            <h4>Dr. Sarah Johnson</h4>
+                            <p class="text-muted">PhD in Mathematics with 10+ years teaching experience</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="badge bg-primary">General Tutor</span>
+                                <span class="badge bg-success">Chapter-wise</span>
+                            </div>
+                            <a href="#" class="btn btn-outline-primary w-100 mt-3">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 animate delay-1">
+                    <div class="tutor-card">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Tutor" class="tutor-img">
+                        <div class="tutor-badge">Physics</div>
+                        <div class="p-4">
+                            <h4>Prof. David Chen</h4>
+                            <p class="text-muted">Specializes in Physics for competitive exams</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="badge bg-primary">General Tutor</span>
+                                <span class="badge bg-success">Chapter-wise</span>
+                            </div>
+                            <a href="#" class="btn btn-outline-primary w-100 mt-3">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 animate delay-2">
+                    <div class="tutor-card">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Tutor" class="tutor-img">
+                        <div class="tutor-badge">Chemistry</div>
+                        <div class="p-4">
+                            <h4>Dr. Emily Wilson</h4>
+                            <p class="text-muted">Organic Chemistry specialist with innovative teaching methods</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="badge bg-success">Chapter-wise</span>
+                            </div>
+                            <a href="#" class="btn btn-outline-primary w-100 mt-3">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 animate delay-3">
+                    <div class="tutor-card">
+                        <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Tutor" class="tutor-img">
+                        <div class="tutor-badge">Biology</div>
+                        <div class="p-4">
+                            <h4>Prof. Robert Taylor</h4>
+                            <p class="text-muted">15 years experience teaching Biology at university level</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <span class="badge bg-primary">General Tutor</span>
+                            </div>
+                            <a href="#" class="btn btn-outline-primary w-100 mt-3">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-5 animate delay-3">
+                <a href="{% url 'tutor_list_general' %}" class="btn btn-primary btn-lg">Browse All Tutors</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section class="resources">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h2>Study Resources</h2>
+                    <p class="lead">Everything you need for effective learning</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6 animate">
+                    <div class="resource-card">
+                        <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Books" class="resource-img">
+                        <div class="p-4">
+                            <h4>Textbooks & References</h4>
+                            <p>Comprehensive collection of textbooks for all subjects and levels.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold">Starting at $9.99</span>
+                                <a href="books.html" class="btn btn-sm btn-outline-primary">Browse Books</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 animate delay-1">
+                    <div class="resource-card">
+                        <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Stationery" class="resource-img">
+                        <div class="p-4">
+                            <h4>Premium Stationery</h4>
+                            <p>High-quality notebooks, pens, and other essential study tools.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold">Starting at $2.99</span>
+                                <a href="stationery.html" class="btn btn-sm btn-outline-primary">Shop Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 animate delay-2">
+                    <div class="resource-card">
+                        <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Study Notes" class="resource-img">
+                        <div class="p-4">
+                            <h4>Study Notes & Guides</h4>
+                            <p>Curated study materials prepared by top educators and students.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-primary fw-bold">Free & Premium</span>
+                                <a href="notes.html" class="btn btn-sm btn-outline-primary">Explore</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scholarship Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 animate">
+                    <h2>Latest Scholarship Opportunities</h2>
+                    <p class="lead">Stay updated with the most recent scholarship announcements and application deadlines.</p>
+                    <p>Our platform aggregates scholarships from various sources and presents them in an easy-to-browse format with all the essential details you need to apply.</p>
+                    <a href="scholarships.html" class="btn btn-primary mt-3">View Scholarships</a>
+                </div>
+                <div class="col-lg-6 animate delay-1">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h4 class="card-title">Featured Scholarship</h4>
+                            <h5 class="text-primary">National STEM Excellence Award</h5>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><i class="fas fa-award me-2 text-warning"></i>Amount: $10,000/year</li>
+                                <li class="list-group-item"><i class="fas fa-graduation-cap me-2 text-warning"></i>For: Undergraduate STEM Students</li>
+                                <li class="list-group-item"><i class="fas fa-calendar-alt me-2 text-warning"></i>Deadline: October 15, 2023</li>
+                            </ul>
+                            <a href="scholarship-detail.html" class="btn btn-outline-primary w-100 mt-3">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-12 text-center">
+                    <h2>What Our Students Say</h2>
+                    <p class="lead">Success stories from our community</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4 animate">
+                    <div class="testimonial-card h-100">
+                        <div class="text-center">
+                            <img src="https://randomuser.me/api/portraits/women/33.jpg" alt="Student" class="testimonial-img">
+                        </div>
+                        <div class="text-center mb-3">
+                            <div class="text-warning">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <p class="text-center">"The chapter-wise tutoring helped me focus exactly on the topics I was struggling with, saving me time and money. My physics grade improved from a C to an A in just two months!"</p>
+                        <h5 class="text-center mt-3">- Jessica T.</h5>
+                        <p class="text-muted text-center">High School Student</p>
+                    </div>
+                </div>
+                <div class="col-md-4 animate delay-1">
+                    <div class="testimonial-card h-100">
+                        <div class="text-center">
+                            <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Student" class="testimonial-img">
+                        </div>
+                        <div class="text-center mb-3">
+                            <div class="text-warning">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <p class="text-center">"I found all my course books at a discounted price, and the delivery was super fast. The scholarship section helped me discover three funding opportunities I didn't know about."</p>
+                        <h5 class="text-center mt-3">- Michael R.</h5>
+                        <p class="text-muted text-center">College Student</p>
+                    </div>
+                </div>
+                <div class="col-md-4 animate delay-2">
+                    <div class="testimonial-card h-100">
+                        <div class="text-center">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Student" class="testimonial-img">
+                        </div>
+                        <div class="text-center mb-3">
+                            <div class="text-warning">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                        <p class="text-center">"My general tutor helped me develop a study plan that transformed my approach to learning. The quality notebooks I bought from StudyMate have been perfect for organizing my notes."</p>
+                        <h5 class="text-center mt-3">- Sarah L.</h5>
+                        <p class="text-muted text-center">University Student</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <h2 class="animate">Ready to Transform Your Learning Experience?</h2>
+            <p class="animate delay-1 lead mb-4">Join thousands of students who are achieving academic success with StudyMate</p>
+            <div class="animate delay-2">
+                <a href="{% url 'register' %}" class="btn btn-light btn-lg me-2">Register for Free</a>
+                <a href="{% url 'tutor_list_general' %}" class="btn btn-outline-light btn-lg">Find a Tutor</a>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
