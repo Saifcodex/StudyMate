@@ -325,3 +325,12 @@ def cancel_appointment_general(request, general_appointment_id):
 
     messages.success(request, "Appointment canceled successfully.")
     return redirect('user_profile')
+
+def cancel_appointment_chapter(request, chapter_appointment_id):
+    chapterappointment = get_object_or_404(ChapterAppointment, id=chapter_appointment_id)
+
+    chapterappointment.status = 'canceled'
+    chapterappointment.save()
+
+    messages.success(request, "Appointment canceled successfully.")
+    return redirect('user_profile')
