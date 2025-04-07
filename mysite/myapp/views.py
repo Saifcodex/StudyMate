@@ -105,3 +105,9 @@ def user_profile(request):
     }
     return render(request, 'user_profile.html', context)
 
+
+@login_required
+def logout(request):
+    auth_logout(request)
+    messages.success(request, "Logged out Successfully!")
+    return redirect('home')
