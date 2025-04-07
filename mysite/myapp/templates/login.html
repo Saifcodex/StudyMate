@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content%}
+<!-- Main Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="https://via.placeholder.com/40x40" alt="" >
+                <span>Study</span>Mate
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Find Tutors
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                            <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Resources
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link " href="#">Scholarships</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Blog</a>
+                    </li>
+                </ul>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                         <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
+                       {% else %}
+                         <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
+                    {% endif %}
+                </div>
+                <div class="btn-container ms-lg-3">
+                    {% if user.is_authenticated %}
+                       {% if user.is_superuser %}
+                          <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
+                       {% else %}
+                          <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
+                       {% endif %}
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+<!-- End Navbar -->
+
+<!-- Login Section -->
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="mb-0 text-center"><i class="fas fa-sign-in-alt me-2"></i>Login to Your Account</h3>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    {% if form.errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error!</strong> Your username and password didn't match. Please try again.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'login' %}" class="needs-validation" novalidate>
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label for="u_name" class="form-label fw-bold">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control form-control-lg" id="u_name" name="u_name" required>
+                                <div class="invalid-feedback">
+                                    Please enter your username
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="u_password" class="form-label fw-bold">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control form-control-lg" id="u_password" name="u_password" required>
+                                <div class="invalid-feedback">
+                                    Please enter your password
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 captcha_container">
+                            {{ form.captcha }}
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg py-2">
+                                <i class="fas fa-sign-in-alt me-2"></i>Login
+                            </button>
+                        </div>
+
+                        <div class="text-center">
+                            <p class="mb-2">Don't have an account? <a href="{% url 'register' %}" class="text-primary">Sign up here</a></p>
+                            <a href="#" class="text-muted">Forgot password?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-bottom: none;
+    }
+
+    .form-control, .input-group-text {
+        height: 50px;
+    }
+
+    .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+    }
+
+    .form-control {
+        border-left: none;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #dee2e6;
+    }
+
+    .btn-primary {
+        background-color: #1a76d1;
+        border-color: #1a76d1;
+    }
+
+    .btn-primary:hover {
+        background-color: #1565c0;
+        border-color: #1565c0;
+    }
+
+    .captcha_container {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<!-- Form Validation -->
+<script>
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}
