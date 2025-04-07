@@ -166,3 +166,39 @@ def tutor_list_chapter(request):
         'chaptertutor': chaptertutor,
         'specialty': dict(ChapterTutor.SPECIALTY_CHOICES).get(specialty, 'All'),
     })
+
+@login_required
+def book_appointment_general(request, general_tutor_id):
+    if request.method == "POST":
+        generaltutor = get_object_or_404(GeneralTutor, id=general_tutor_id)
+        student_name = request.POST.get('student_name')
+        phone_number = request.POST.get('phone_number')
+        guardian_name = request.POST.get('guardian_name')
+        guardian_phone = request.POST.get('guardian_phone')
+        class_name = request.POST.get('class_name')
+        subject = request.POST.get('subject')
+        division = request.POST.get('division')
+        district = request.POST.get('district')
+        address = request.POST.get('address')
+        preferred_days = request.POST.get('preferred_days')
+        preferred_time = request.POST.get('preferred_time')
+
+        GeneralAppointment.objects.create(
+            user=request.user,
+            generaltutor=generaltutor,
+            student_name=student_name,
+            phone_number=phone_number,
+            guardian_name=guardian_name,
+            guardian_phone=guardian_phone,
+            class_name=class_name,
+            subject=subject,
+            division=division,
+            district=district,
+            address=address,
+            preferred_days=preferred_days,
+            preferred_time=preferred_time,
+        )
+        messages.success(request, "Appointment booked successfully.")
+        return redirect('user_profile')
+
+    return redirect('tutor_list_general')
