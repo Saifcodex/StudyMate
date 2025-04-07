@@ -111,3 +111,31 @@ def logout(request):
     auth_logout(request)
     messages.success(request, "Logged out Successfully!")
     return redirect('home')
+
+def tutor_list_general(request):
+    specialty = request.GET.get('specialty')
+    gender = request.GET.get('gender')
+    medium = request.GET.get('medium')
+    division = request.GET.get('division')
+    district = request.GET.get('district')
+    background = request.GET.get('background')
+
+    generaltutor = GeneralTutor.objects.all()
+    if specialty:
+        generaltutor = generaltutor.filter(specialty__icontains=specialty)
+    if gender:
+        generaltutor = generaltutor.filter(gender__iexact=gender)
+    if medium:
+        generaltutor = generaltutor.filter(medium__icontains=medium)
+    if division:
+        generaltutor = generaltutor.filter(division__icontains=division)
+    if district:
+        generaltutor = generaltutor.filter(district__icontains=district)
+    if background:
+        generaltutor = generaltutor.filter(background__icontains=background)
+
+
+    return render(request, 'tutor_list_general.html', {
+        'generaltutor': generaltutor,
+        'specialty': dict(GeneralTutor.SPECIALTY_CHOICES).get(specialty, 'All'),
+    })
