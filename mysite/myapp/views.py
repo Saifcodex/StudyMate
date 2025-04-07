@@ -49,3 +49,24 @@ def login(request):
                 messages.error(request, "Invalid username or password.")
 
     return render(request, "login.html", {"form": form})
+
+
+def register(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            authenticated_user = authenticate(request, username=user.username, password=form.cleaned_data["u_password"])
+
+            if authenticated_user is not None:
+                auth_login(request, authenticated_user)
+                messages.success(request, "Your account has been successfully created.")
+                return redirect("home")
+            else:
+                messages.error(request, "User registration failed. Please try again.")
+        else:
+            messages.error(request, "Invalid form data. Please check your inputs.")
+    else:
+        form = RegisterForm()
+
+    return render(request, "register.html", {"form": form})
