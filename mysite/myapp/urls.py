@@ -31,7 +31,16 @@ urlpatterns = [
     path('book_appointment_chapter/<int:chapter_tutor_id>/', views.book_appointment_chapter, name='book_appointment_chapter'),
     path('edit_appointment_chapter/<int:chapter_appointment_id>/', views.edit_appointment_chapter, name='edit_appointment_chapter'),
     path('cancel_appointment_chapter/<int:chapter_appointment_id>/', views.cancel_appointment_chapter, name='cancel_appointment_chapter'),
-    # path('books/', views.book_list, name='book_list'),
+    
+
+    #Books
+    path('books/', views.book_list, name='book_list'),
+    path('books/add-to-cart/<int:book_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.cart_view, name='cart_view'),
+    path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('checkout/', views.checkout, name='checkout'),
+    path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
+    path('orders/', views.order_history, name='order_history'),
 
     #scholarship
     path('scholarships/', views.scholarship_list, name='scholarship_list'),

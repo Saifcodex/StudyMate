@@ -512,3 +512,84 @@ class StudyNote(models.Model):
         return f"{self.class_name} - {self.subject} - Chapter {self.chapter_number}: {self.chapter_name}"
 
 #Study Note end
+
+#al-amin
+#books 
+
+from django.utils import timezone
+
+class Book(models.Model):
+    CATEGORY_CHOICES = [
+        ('textbook', 'Textbook'),
+        ('reference', 'Reference Book'),
+        ('novel', 'Novel'),
+        ('academic', 'Academic'),
+        ('other', 'Other'),
+    ]
+    
+    LEVEL_CHOICES = [
+        ('school', 'School'),
+        ('college', 'College'),
+        ('university', 'University'),
+        ('general', 'General'),
+    ]
+    
+    cover_image = models.ImageField(upload_to='book_covers/')
+    title = models.CharField(max_length=100)
+    author = models.CharField(max_length=100)
+    publisher = models.CharField(max_length=100)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    level = models.CharField(max_length=50, choices=LEVEL_CHOICES, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.IntegerField()
+    is_bestseller = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class CartItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total_price(self):
+        return self.quantity * self.book.price
+
+    def __str__(self):
+        return f"{self.user.username} - {self.book.title}"
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order_date = models.DateTimeField(default=timezone.now)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    shipping_address = models.TextField()
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.user.username}"
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def item_total(self):
+        return self.quantity * self.price
+
+    def __str__(self):
+        return f"{self.book.title} (x{self.quantity})"
+    
+    # books end

@@ -37,6 +37,72 @@
         </div>
     </div>
 
+<!-- Main Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+            <img src="https://via.placeholder.com/40x40" alt="" >
+            <span>Study</span>Mate
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Find Tutors
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
+                        <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
+                        <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Resources
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
+                        <li><a class="dropdown-item" href="{% url 'book_list' %}"><i class="fas fa-book me-2"></i>Books</a></li>
+                        <li><a class="dropdown-item" href="{% url 'study_notes' %}"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link " href="{% url 'scholarship_list' %}">Scholarships</a>
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="#">Blog</a>
+                </li> -->
+            </ul>
+            <div class="btn-container ms-lg-3">
+                {% if user.is_authenticated %}
+                   {% if user.is_superuser %}
+                     <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
+                   {% else %}
+                     <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
+                   {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
+                {% endif %}
+            </div>
+            <div class="btn-container ms-lg-3">
+                {% if user.is_authenticated %}
+                   {% if user.is_superuser %}
+                      <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
+                   {% else %}
+                      <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
+                   {% endif %}
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+<!-- End Navbar -->    
 
 {% block content %}
 
@@ -68,7 +134,6 @@
                     <li><a href="{% url 'tutor_list_general' %}"><i class="fas fa-chevron-right me-2"></i>Find Tutors</a></li>
                     <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Study Resources</a></li>
                     <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Scholarships</a></li>
-                    <li><a href="#"><i class="fas fa-chevron-right me-2"></i>Blog</a></li>
                 </ul>
             </div>
             <div class="footer-column">
@@ -84,15 +149,15 @@
                 <ul class="contact-info-footer">
                     <li>
                         <i class="fas fa-map-marker-alt"></i>
-                        <span>123 Education Street, Learning District, Dhaka 1212, Bangladesh</span>
+                        <span>123 Education Street, Dhaka 1212</span>
                     </li>
                     <li>
                         <i class="fas fa-phone"></i>
-                        <span>+880 1956 040265<br>+880 1967 123456</span>
+                        <span>+880 1956 040265</span>
                     </li>
                     <li>
                         <i class="fas fa-envelope"></i>
-                        <span>info@studymate.com<br>support@studymate.com</span>
+                        <span>info@studymate.com</span>
                     </li>
                     <li>
                         <i class="fas fa-clock"></i>

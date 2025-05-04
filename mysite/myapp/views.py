@@ -71,12 +71,51 @@ def register(request):
 
     return render(request, "register.html", {"form": form})
 
+# def user_profile(request):
+#     user_profile = UserProfile.objects.get(user=request.user)
+#     profile_form = UserProfileForm(instance=user_profile)
+#     user_form = UserForm(instance=request.user)
+#     general_appointments = GeneralAppointment.objects.filter(user=request.user)
+#     chapter_appointments = ChapterAppointment.objects.filter(user=request.user)
+
+#     if request.method == "POST":
+#         if "delete_account" in request.POST:
+#             request.user.delete()
+#             auth_logout(request)
+#             messages.success(request, "Your account has been deleted.")
+#             return redirect('login')
+
+#         profile_form = UserProfileForm(request.POST, instance=user_profile)
+#         user_form = UserForm(request.POST, instance=request.user)
+
+#         if profile_form.is_valid() and user_form.is_valid():
+#             profile_form.save()
+#             user_form.save()
+#             messages.success(request, "Profile updated successfully.")
+#             return redirect('user_profile')
+#         else:
+#             messages.error(request, "Error updating profile. Please check the form.")
+
+#     context = {
+#         'user_profile': user_profile,
+#         'profile_form': profile_form,
+#         'user_form': user_form,
+#         'general_appointments': general_appointments,
+#         'chapter_appointments': chapter_appointments,
+#     }
+#     return render(request, 'user_profile.html', context)
+
 def user_profile(request):
-    user_profile = UserProfile.objects.get(user=request.user)
-    profile_form = UserProfileForm(instance=user_profile)
-    user_form = UserForm(instance=request.user)
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        # Create profile if it doesn't exist
+        user_profile = UserProfile.objects.create(user=request.user)
+    
+    # Get all necessary data
     general_appointments = GeneralAppointment.objects.filter(user=request.user)
     chapter_appointments = ChapterAppointment.objects.filter(user=request.user)
+    orders = Order.objects.filter(user=request.user).order_by('-order_date')[:5]  # Last 5 order
 
     if request.method == "POST":
         if "delete_account" in request.POST:
@@ -96,14 +135,21 @@ def user_profile(request):
         else:
             messages.error(request, "Error updating profile. Please check the form.")
 
+    else:
+        # Initialize fresh forms for GET requests
+        profile_form = UserProfileForm(instance=user_profile)
+        user_form = UserForm(instance=request.user)        
+
     context = {
         'user_profile': user_profile,
         'profile_form': profile_form,
         'user_form': user_form,
         'general_appointments': general_appointments,
         'chapter_appointments': chapter_appointments,
+        'orders': orders,
     }
     return render(request, 'user_profile.html', context)
+
 
 
 @login_required
@@ -336,8 +382,156 @@ def cancel_appointment_chapter(request, chapter_appointment_id):
     return redirect('user_profile')
 
 
+#al-amin
+#books
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import Q  # Add this import
+from .models import Book, CartItem, Order, OrderItem
+from .forms import BookSearchForm, BookFilterForm
+
+def book_list(request):
+    books = Book.objects.all()
+    search_form = BookSearchForm(request.GET or None)
+    filter_form = BookFilterForm(request.GET or None)
+    
+    # Apply filters if form is valid
+    if request.GET:  # If any GET parameters exist
+        if filter_form.is_valid():
+            data = filter_form.cleaned_data
+            
+            # Search query
+            if data.get('query'):
+                books = books.filter(
+                    Q(title__icontains=data['query']) |
+                    Q(author__icontains=data['query']) |
+                    Q(publisher__icontains=data['query'])
+                )
+            
+            # Category filter
+            if data.get('category'):
+                books = books.filter(category=data['category'])
+            
+            # Level filter
+            if data.get('level'):
+                books = books.filter(level=data['level'])
+            
+            # Price range
+            if data.get('min_price'):
+                books = books.filter(price__gte=data['min_price'])
+            if data.get('max_price'):
+                books = books.filter(price__lte=data['max_price'])
+            
+            # Bestsellers
+            if data.get('bestsellers'):
+                books = books.filter(is_bestseller=True)
+            
+            # Sorting
+            if data.get('sort_by'):
+                books = books.order_by(data['sort_by'])
+    
+    return render(request, 'book_list.html', {
+        'books': books,
+        'search_form': search_form,
+        'filter_form': filter_form,
+    })
+
+@login_required
+def add_to_cart(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    quantity = int(request.POST.get('quantity', 1))  # Get the quantity from the form
+    
+    # Try to get the existing CartItem for this user and book
+    cart_item, created = CartItem.objects.get_or_create(
+        user=request.user,
+        book=book
+    )
+    
+    if not created:
+        # If the item already exists, update the quantity
+        cart_item.quantity += quantity
+        cart_item.save()
+    else:
+        cart_item.quantity = quantity
+        cart_item.save()
+    
+    return redirect('cart_view')
 
 
+@login_required
+def cart_view(request):
+    cart_items = CartItem.objects.filter(user=request.user)
+    total = sum(item.total_price for item in cart_items)
+    return render(request, 'cart.html', {
+        'cart_items': cart_items,
+        'total': total,
+    })
+
+@login_required
+def remove_from_cart(request, item_id):
+    cart_item = get_object_or_404(CartItem, id=item_id, user=request.user)
+    cart_item.delete()
+    return redirect('cart_view')
+
+@login_required
+def checkout(request):
+    cart_items = CartItem.objects.filter(user=request.user)
+    
+    if not cart_items.exists():
+        return redirect('book_list')  # If no items in cart, redirect to book list
+    
+    # Calculate total price
+    total = sum(item.total_price for item in cart_items)
+    
+    if request.method == 'POST':
+        # Create the order and order items
+        shipping_address = request.POST.get('shipping_address', '')
+        order = Order.objects.create(
+            user=request.user,
+            total_amount=total,
+            shipping_address=shipping_address
+        )
+        
+        for item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                book=item.book,
+                quantity=item.quantity,
+                price=item.book.price
+            )
+            # Reduce stock
+            item.book.stock -= item.quantity
+            item.book.save()
+        
+        # Clear the cart after placing the order
+        cart_items.delete()
+        
+        return redirect('order_detail', order_id=order.id)
+    
+    return render(request, 'checkout.html', {
+        'cart_items': cart_items,
+        'total': total,
+    })
+
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, 'order_detail.html', {'order': order})
+
+@login_required
+def order_history(request):
+    orders = Order.objects.filter(user=request.user).order_by('-order_date')
+    return render(request, 'order_history.html', {'orders': orders})
+
+# @login_required
+# def user_profile(request):
+#     # Fetch orders for the logged-in user
+#     orders = Order.objects.filter(user=request.user).order_by('-order_date')
+#     return render(request, 'user_profile.html', {'orders': orders})
+
+
+#books end
 
 #scholarship
 

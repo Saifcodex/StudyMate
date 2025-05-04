@@ -50,3 +50,88 @@ class RegisterForm(forms.ModelForm):
 class LoginForm(forms.Form):
     u_name = forms.CharField(max_length=150)
     u_password = forms.CharField(widget=forms.PasswordInput)
+
+
+#al-amin
+#books
+
+class BookSearchForm(forms.Form):
+    query = forms.CharField(
+        label='Search books',
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Search by title or author...',
+            'class': 'form-control'
+        })
+    )
+
+class BookFilterForm(forms.Form):
+    CATEGORY_CHOICES = [
+        ('', 'All Categories'),
+        ('textbook', 'Textbook'),
+        ('reference', 'Reference'),
+        ('novel', 'Novel'),
+        ('academic', 'Academic'),
+        ('other', 'Other'),
+        
+    ]
+    
+    LEVEL_CHOICES = [
+        ('', 'All Levels'),
+        ('school', 'School'),
+        ('college', 'College'),
+        ('university', 'University'),
+        ('general', 'General'),
+    ]
+    
+    SORT_CHOICES = [
+        ('title', 'Title (A-Z)'),
+        ('-title', 'Title (Z-A)'),
+        ('price', 'Price (Low to High)'),
+        ('-price', 'Price (High to Low)'),
+        ('-created_at', 'Newest First'),
+    ]
+    
+    query = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Search books...',
+            'class': 'form-control'
+        })
+    )
+    category = forms.ChoiceField(
+        choices=CATEGORY_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    level = forms.ChoiceField(
+        choices=LEVEL_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    sort_by = forms.ChoiceField(
+        choices=SORT_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    min_price = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'placeholder': 'Min price',
+            'class': 'form-control'
+        })
+    )
+    max_price = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'placeholder': 'Max price',
+            'class': 'form-control'
+        })
+    )
+    bestsellers = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )    
+
+#Books end
