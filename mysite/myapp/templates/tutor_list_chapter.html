@@ -1,73 +1,9 @@
 {% extends "base.html" %}
+{% load time_extras %}
+{{ slot.time|format_time_string }}
+{% load custom_tags %}
 {% load static %}
 {% block content%}
-<!-- Main Navbar -->
-    <!-- <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                <img src="https://via.placeholder.com/40x40" alt="" >
-                <span>Study</span>Mate
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'home' %}">Home</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Find Tutors
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
-                            <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
-                            <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Resources
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " href="#">Scholarships</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Blog</a>
-                    </li>
-                </ul>
-                <div class="btn-container ms-lg-3">
-                    {% if user.is_authenticated %}
-                       {% if user.is_superuser %}
-                         <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
-                       {% else %}
-                         <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
-                       {% endif %}
-                    {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
-                    {% endif %}
-                </div>
-                <div class="btn-container ms-lg-3">
-                    {% if user.is_authenticated %}
-                       {% if user.is_superuser %}
-                          <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
-                       {% else %}
-                          <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
-                       {% endif %}
-                    {% else %}
-                        <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </nav> -->
-<!-- End Navbar -->
 
 {% block extra-styles %}
     <link rel="stylesheet" href="{% static 'css/tutor_list_chapter.css' %}">
@@ -230,11 +166,11 @@
             </div>
         </div>
 
-        <!-- Tutor List Section -->
+       <!-- Tutor List Section -->
         <div class="col-md-8 col-lg-9">
-            {% if chaptertutor %}
+            {% if chaptertutors %}
                 <div class="row row-cols-1 row-cols-md-2 g-4">
-                    {% for tutor in chaptertutor %}
+                    {% for tutor in chaptertutors %}
                     <div class="col">
                         <div class="card h-100 shadow-sm">
                             <div class="row g-0">
@@ -257,11 +193,34 @@
                                             <i class="fas fa-map-marker-alt me-2"></i>{{ tutor.district }}, {{ tutor.division }}
                                         </p>
                                         <p class="card-text text-muted mb-2">
-                                            <i class="fas fa-money-bill-wave me-2"></i>BDT per Chapter {{ tutor.salary_per_chapter }}
+                                            <i class="fas fa-money-bill-wave me-2"></i>BDT  {{ tutor.salary_per_chapter }}
                                         </p>
                                         <p class="card-text text-muted mb-3">
                                             <i class="fa-solid fa-graduation-cap"></i> {{ tutor.background }}
                                         </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fa-solid fa-chalkboard me-1"></i>
+                                            <strong>Classes:</strong> {{ tutor.preferred_classes }}
+                                        </p>
+                                        <p class="card-text text-muted mb-2">
+                                            <i class="fa-solid fa-book-open me-1"></i>
+                                            <strong>Subjects:</strong> {{ tutor.preferred_subjects }}
+                                        </p>
+                                        <p class="card-text text-muted mb-1">
+                                            <i class="fa-regular fa-clock me-1"></i>
+                                            <strong>Available Time Slots:</strong>
+                                        </p>
+                                        {% with tutor_slots|get_item:tutor.id as slots %}
+                                          {% if slots %}
+                                            <ul class="list-unstyled ms-3">
+                                              {% for slot in slots %}
+                                                 <li class="text-primary"><i class="fa-solid fa-check-circle me-1 text-success"></i> {{ slot.time }} </li>
+                                              {% endfor %}
+                                            </ul>
+                                          {% else %}
+                                            <p class="text-danger ms-3">No available time slots.</p>
+                                          {% endif %}
+                                        {% endwith %}
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="badge bg-primary">{{ tutor.availability }}</span>
                                             <button class="btn btn-sm btn-primary"
@@ -298,7 +257,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="POST" id="bookAppointmentForm">
+                <form method="POST" id="bookAppointmentForm" onsubmit="return validateTimeSelection()">
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -306,16 +265,16 @@
                             <input type="text" class="form-control" id="studentName" name="student_name" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="phoneNumber" class="form-label">Phone Number</label>
-                            <input type="text" class="form-control" id="phoneNumber" name="phone_number" required>
+                            <label for="phoneNumber" class="form-label">Phone Number (5 digits)</label>
+                            <input type="number" class="form-control" id="phoneNumber" name="phone_number" min="10000" max="99999" required>
                         </div>
                         <div class="col-md-6">
                             <label for="guardianName" class="form-label">Guardian Name</label>
                             <input type="text" class="form-control" id="guardianName" name="guardian_name" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="guardianPhone" class="form-label">Guardian Phone</label>
-                            <input type="text" class="form-control" id="guardianPhone" name="guardian_phone" required>
+                            <label for="guardianPhone" class="form-label">Guardian Phone (5 digits)</label>
+                            <input type="number" class="form-control" id="guardianPhone" name="guardian_phone" min="10000" max="99999" required>
                         </div>
                         <div class="col-md-6">
                             <label for="className" class="form-label">Select Class</label>
@@ -422,8 +381,13 @@
                             <input type="text" class="form-control" id="preferredDays" name="preferred_days" required>
                         </div>
                         <div class="col-md-6">
-                            <label for="preferredTime" class="form-label">Preferred Time</label>
-                            <input type="text" class="form-control" id="preferredTime" name="preferred_time" required>
+                            <label for="preferred_time"><i class="fa-regular fa-clock me-1"></i> Available Time:</label>
+                            <div class="form-group">
+                                <select name="preferred_time" id="preferred_time" class="form-select" required>
+                                    <option value="">Select a time</option>
+                                </select>
+                                <p id="timeSlotWarning" class="text-danger d-none mt-2">Please choose the time from the available options.</p>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer mt-4">
@@ -440,18 +404,54 @@
 function clearFilters() {
     window.location.href = "{% url 'tutor_list_chapter' %}";
 }
+const tutorSlots = {{ tutor_slots_json|safe }};
 
 document.addEventListener("DOMContentLoaded", function () {
-    const appointmentModal = document.getElementById('bookAppointmentModal');
-    if (appointmentModal) {
-        appointmentModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const tutorId = button.getAttribute('data-tutor-id');
-            const form = document.getElementById('bookAppointmentForm');
-            form.action = `/book_appointment_chapter/${tutorId}/`;
-        });
+      const appointmentModal = document.getElementById('bookAppointmentModal');
+      const timeSelect = document.getElementById('preferred_time');
+      const warningText = document.getElementById('timeSlotWarning');
+      const form = document.getElementById('bookAppointmentForm');
+
+      appointmentModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const tutorId = button.getAttribute('data-tutor-id');
+
+
+        form.action = `/book_appointment_chapter/${tutorId}/`;
+
+
+        timeSelect.innerHTML = '<option value="">Select a time</option>';
+
+
+        const slots = tutorSlots[tutorId];
+        if (slots && slots.length > 0) {
+          slots.forEach(slot => {
+            const option = document.createElement('option');
+            option.value = slot.id;
+            option.textContent = slot.time;
+            timeSelect.appendChild(option);
+          });
+        } else {
+          const option = document.createElement('option');
+          option.value = "";
+          option.textContent = "No available slots";
+          option.disabled = true;
+          timeSelect.appendChild(option);
+        }
+
+        warningText.classList.add("d-none");
+      });
+    });
+
+    function validateTimeSelection() {
+      const timeSelect = document.getElementById('preferred_time');
+      const warningText = document.getElementById('timeSlotWarning');
+      if (!timeSelect.value) {
+        warningText.classList.remove("d-none");
+        return false;
+      }
+      return true;
     }
-});
 </script>
 
 {% endblock %}
