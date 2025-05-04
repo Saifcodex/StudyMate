@@ -4,74 +4,6 @@
 {% block content%}
 
 
-<!-- Main Navbar -->
-<!-- <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'home' %}">
-            <img src="https://via.placeholder.com/40x40" alt="">
-            <span>Study</span>Mate
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'home' %}">Home</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="{% url 'tutor_list_general' %}" id="tutorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Find Tutors
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="tutorsDropdown">
-                        <li><a class="dropdown-item" href="{% url 'tutor_list_general' %}"><i class="fas fa-user-graduate me-2"></i>General Tutors</a></li>
-                        <li><a class="dropdown-item" href="{% url 'tutor_list_chapter' %}"><i class="fas fa-book-open me-2"></i>Chapter-wise Tutors</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="resourcesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Resources
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="resourcesDropdown">
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-book me-2"></i>Books</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-pencil-alt me-2"></i>Stationery</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-sticky-note me-2"></i>Study Notes</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link " href="#">Scholarships</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Blog</a>
-                </li>
-            </ul>
-            <div class="btn-container ms-lg-3">
-                {% if user.is_authenticated %}
-                   {% if user.is_superuser %}
-                     <a href="{% url 'admin:index' %}"  class="btn btn-outline-custom me-2" >Admin Panel</a><br>
-                   {% else %}
-                     <a href="{% url 'user_profile' %}" class="btn btn-outline-custom me-2"  >{{ user.username }}</a><br>
-                   {% endif %}
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-custom" >Login</a><br>
-                {% endif %}
-            </div>
-            <div class="btn-container ms-lg-3">
-                {% if user.is_authenticated %}
-                   {% if user.is_superuser %}
-                      <a href="{% url 'logout' %}"  class="btn btn-outline-custom me-2" >Sign out</a><br>
-                   {% else %}
-                      <a href="{% url 'logout' %}" class="btn btn-outline-custom me-2"  >Sign out</a><br>
-                   {% endif %}
-                {% else %}
-                    <a href="{% url 'register' %}" class="btn btn-custom" >Sign Up</a><br>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-</nav> -->
-<!-- End Navbar -->
-
 {% block extra-styles %}
 <link rel="stylesheet" href="{% static 'css/user_info.css' %}" />
 <link rel="stylesheet" href="{% static 'css/edit_profile.css' %}" />
@@ -79,7 +11,6 @@
 
 
 <div class="container my-5">
-    <!-- User Profile Section - Redesigned without image -->
     <div class="row mb-5">
         <div class="col-12">
             <div class="card shadow-sm profile-section" id="userProfileView">
@@ -134,7 +65,6 @@
                 </div>
             </div>
 
-            <!-- Edit Profile Section - Redesigned without image -->
             <div class="card shadow-sm profile-section" id="userProfileEdit" style="display: none;">
                 <div class="card-header profile-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Edit Profile</h4>
@@ -236,6 +166,8 @@
                                         <th>Student Info</th>
                                         <th>Guardian Info</th>
                                         <th>Class/Subject</th>
+                                        <th>Preferred Time</th>
+                                        <th>Preferred Days</th>
                                         <th>Location</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -264,7 +196,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>BDT {{ general_appointment.generaltutor.salary_range }}</td>
+                                        <td>{{ general_appointment.generaltutor.salary_range }}</td>
                                         <td>
                                             <h6 class="mb-0">{{ general_appointment.student_name }}</h6>
                                             <small class="text-muted">{{ general_appointment.phone_number }}</small>
@@ -277,9 +209,12 @@
                                             <span class="badge bg-light text-dark">{{ general_appointment.class_name }}</span>
                                             <span class="badge bg-light text-dark">{{ general_appointment.subject }}</span>
                                         </td>
+                                        <td><span class="badge bg-info text-white">{{ general_appointment.preferred_time }}</span></td>
+                                        <td><span class="badge bg-light text-dark">{{ general_appointment.preferred_days }}</span></td>
                                         <td>
                                             <small>{{ general_appointment.district }}, {{ general_appointment.division }}</small>
                                         </td>
+
                                         <td>
                                             <span class="badge
                                                 {% if general_appointment.status == 'Approved' %}bg-success
@@ -350,6 +285,8 @@
                                         <th>Student Info</th>
                                         <th>Guardian Info</th>
                                         <th>Class/Subject/Chapter</th>
+                                        <th>Preferred Time</th>
+                                        <th>Preferred Days</th>
                                         <th>Location</th>
                                         <th>Status</th>
                                         <th>Actions</th>
@@ -392,6 +329,8 @@
                                             <span class="badge bg-light text-dark">{{ chapter_appointment.subject }}</span>
                                             <span class="badge bg-light text-dark">{{ chapter_appointment.chapter }}</span>
                                         </td>
+                                        <td><span class="badge bg-info text-white">{{ chapter_appointment.preferred_time }}</span></td>
+                                        <td><span class="badge bg-light text-dark">{{ chapter_appointment.preferred_days }}</span></td>
                                         <td>
                                             <small>{{ chapter_appointment.district }}, {{ chapter_appointment.division }}</small>
                                         </td>
@@ -568,7 +507,7 @@
             profileForm.reset();
         });
 
-        // Profile picture upload preview
+
         if (avatarUpload) {
             avatarUpload.addEventListener('change', function(e) {
                 const file = e.target.files[0];
@@ -602,7 +541,7 @@
             });
         });
 
-        // Existing modal and tooltip functionality remains the same
+
         const generalCancelModal = document.getElementById('cancelConfirmationModal');
         if (generalCancelModal) {
             generalCancelModal.addEventListener('show.bs.modal', function (event) {
