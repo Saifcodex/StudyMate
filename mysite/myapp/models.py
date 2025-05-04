@@ -149,6 +149,13 @@ class GeneralTutor(models.Model):
     def __str__(self):
         return f"General Tutor Name : {self.name}"
 
+class TimeSlot(models.Model):
+    tutor = models.ForeignKey(GeneralTutor, on_delete=models.CASCADE, null=True, blank=True)
+    time = models.TimeField()
+
+    def __str__(self):
+        return self.time.strftime('%I:%M %p') if self.time else "No Time"
+
 class GeneralAppointment(models.Model):
 
     DIVISION_CHOICES = [
@@ -233,16 +240,16 @@ class GeneralAppointment(models.Model):
 
     generaltutor = models.ForeignKey(GeneralTutor, on_delete=models.CASCADE)
     student_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.IntegerField()
     guardian_name = models.CharField(max_length=100)
-    guardian_phone = models.CharField(max_length=20)
+    guardian_phone = models.IntegerField()
     class_name = models.CharField(max_length=100, null=True, blank=True)
     subject = models.CharField(max_length=100)
     division = models.CharField(max_length=20, choices=DIVISION_CHOICES, default='Dhaka')
     district = models.CharField(max_length=20, choices=DISTRICT_CHOICES, default='Dhaka')
     address = models.CharField(max_length=100)
     preferred_days = models.CharField(max_length=100)
-    preferred_time = models.CharField(max_length=100)
+    preferred_time = models.ForeignKey(TimeSlot, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):
@@ -367,6 +374,14 @@ class ChapterTutor(models.Model):
         def __str__(self):
             return f"ChapterWise Tutor Name : {self.name}"
 
+class TimeSlot1(models.Model):
+    tutor = models.ForeignKey(ChapterTutor, on_delete=models.CASCADE, null=True, blank=True)
+    time = models.TimeField()
+
+    def __str__(self):
+        return self.time.strftime('%I:%M %p') if self.time else "No Time"
+
+
 class ChapterAppointment(models.Model):
 
     DIVISION_CHOICES = [
@@ -451,9 +466,9 @@ class ChapterAppointment(models.Model):
 
     chaptertutor = models.ForeignKey(ChapterTutor, on_delete=models.CASCADE)
     student_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=20)
+    phone_number = models.IntegerField()
     guardian_name = models.CharField(max_length=100)
-    guardian_phone = models.CharField(max_length=20)
+    guardian_phone = models.IntegerField()
     class_name = models.CharField(max_length=50)
     subject = models.CharField(max_length=100)
     chapter = models.CharField(max_length=100)
@@ -461,7 +476,7 @@ class ChapterAppointment(models.Model):
     district = models.CharField(max_length=20, choices=DISTRICT_CHOICES, default='Dhaka')
     address = models.CharField(max_length=100)
     preferred_days = models.CharField(max_length=100)
-    preferred_time = models.CharField(max_length=100)
+    preferred_time = models.ForeignKey(TimeSlot1, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
 
     def __str__(self):
