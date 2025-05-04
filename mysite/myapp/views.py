@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .models import *
 from .forms import  UserProfileForm, UserForm  , RegisterForm , LoginForm
 from django.contrib.auth import (
@@ -7,12 +6,10 @@ from django.contrib.auth import (
     logout as auth_logout
 )
 from django.contrib import messages
-from django.shortcuts import (
-    get_object_or_404,
-    redirect,
-    render
-)
 from django.contrib.auth.decorators import login_required
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+from django.shortcuts import render, get_object_or_404, redirect
 
 def home(request):
     return render(request, 'home.html')
@@ -71,51 +68,16 @@ def register(request):
 
     return render(request, "register.html", {"form": form})
 
-# def user_profile(request):
-#     user_profile = UserProfile.objects.get(user=request.user)
-#     profile_form = UserProfileForm(instance=user_profile)
-#     user_form = UserForm(instance=request.user)
-#     general_appointments = GeneralAppointment.objects.filter(user=request.user)
-#     chapter_appointments = ChapterAppointment.objects.filter(user=request.user)
-
-#     if request.method == "POST":
-#         if "delete_account" in request.POST:
-#             request.user.delete()
-#             auth_logout(request)
-#             messages.success(request, "Your account has been deleted.")
-#             return redirect('login')
-
-#         profile_form = UserProfileForm(request.POST, instance=user_profile)
-#         user_form = UserForm(request.POST, instance=request.user)
-
-#         if profile_form.is_valid() and user_form.is_valid():
-#             profile_form.save()
-#             user_form.save()
-#             messages.success(request, "Profile updated successfully.")
-#             return redirect('user_profile')
-#         else:
-#             messages.error(request, "Error updating profile. Please check the form.")
-
-#     context = {
-#         'user_profile': user_profile,
-#         'profile_form': profile_form,
-#         'user_form': user_form,
-#         'general_appointments': general_appointments,
-#         'chapter_appointments': chapter_appointments,
-#     }
-#     return render(request, 'user_profile.html', context)
 
 def user_profile(request):
     try:
         user_profile = UserProfile.objects.get(user=request.user)
     except UserProfile.DoesNotExist:
-        # Create profile if it doesn't exist
         user_profile = UserProfile.objects.create(user=request.user)
-    
-    # Get all necessary data
+
     general_appointments = GeneralAppointment.objects.filter(user=request.user)
     chapter_appointments = ChapterAppointment.objects.filter(user=request.user)
-    orders = Order.objects.filter(user=request.user).order_by('-order_date')[:5]  # Last 5 order
+    orders = Order.objects.filter(user=request.user).order_by('-order_date')[:5]
 
     if request.method == "POST":
         if "delete_account" in request.POST:
@@ -136,7 +98,6 @@ def user_profile(request):
             messages.error(request, "Error updating profile. Please check the form.")
 
     else:
-        # Initialize fresh forms for GET requests
         profile_form = UserProfileForm(instance=user_profile)
         user_form = UserForm(instance=request.user)        
 
@@ -166,23 +127,49 @@ def tutor_list_general(request):
     district = request.GET.get('district')
     background = request.GET.get('background')
 
-    generaltutor = GeneralTutor.objects.all()
-    if specialty:
-        generaltutor = generaltutor.filter(specialty__icontains=specialty)
-    if gender:
-        generaltutor = generaltutor.filter(gender__iexact=gender)
-    if medium:
-        generaltutor = generaltutor.filter(medium__icontains=medium)
-    if division:
-        generaltutor = generaltutor.filter(division__icontains=division)
-    if district:
-        generaltutor = generaltutor.filter(district__icontains=district)
-    if background:
-        generaltutor = generaltutor.filter(background__icontains=background)
+    generaltutors = GeneralTutor.objects.all()
 
+
+    if specialty:
+        generaltutors = generaltutors.filter(specialty__icontains=specialty)
+    if gender:
+        generaltutors = generaltutors.filter(gender__iexact=gender)
+    if medium:
+        generaltutors = generaltutors.filter(medium__icontains=medium)
+    if division:
+        generaltutors = generaltutors.filter(division__icontains=division)
+    if district:
+        generaltutors = generaltutors.filter(district__icontains=district)
+    if background:
+        generaltutors = generaltutors.filter(background__icontains=background)
+
+
+    approved_appointments = GeneralAppointment.objects.filter(
+        generaltutor__in=generaltutors, status='Approved'
+    ).values_list('generaltutor_id', 'preferred_time')
+
+
+    tutor_approved_time_map = {}
+    for tutor_id, time_id in approved_appointments:
+        tutor_approved_time_map.setdefault(tutor_id, set()).add(time_id)
+
+
+    tutor_slots = {}
+    for tutor in generaltutors:
+        approved_times = GeneralAppointment.objects.filter(
+            generaltutor=tutor, status='Approved'
+        ).values_list('preferred_time', flat=True)
+
+        available_times = TimeSlot.objects.filter(tutor=tutor).exclude(id__in=approved_times)
+        tutor_slots[tutor.id] = [
+            {"id": slot.id, "time": slot.time.strftime("%I:%M %p")}
+            for slot in available_times
+        ]
 
     return render(request, 'tutor_list_general.html', {
-        'generaltutor': generaltutor,
+        'generaltutors': generaltutors,
+        'tutor_slots': tutor_slots,
+        'tutor_slots_json': json.dumps(tutor_slots, cls=DjangoJSONEncoder),
         'specialty': dict(GeneralTutor.SPECIALTY_CHOICES).get(specialty, 'All'),
     })
 
@@ -194,29 +181,56 @@ def tutor_list_chapter(request):
     district = request.GET.get('district')
     background = request.GET.get('background')
 
-    chaptertutor = ChapterTutor.objects.all()
+    chaptertutors = ChapterTutor.objects.all()
+
     if specialty:
-        chaptertutor = chaptertutor.filter(specialty__icontains=specialty)
+        chaptertutors = chaptertutors.filter(specialty__icontains=specialty)
     if gender:
-        chaptertutor = chaptertutor.filter(gender__iexact=gender)
+        chaptertutors = chaptertutors.filter(gender__iexact=gender)
     if medium:
-        chaptertutor = chaptertutor.filter(medium__icontains=medium)
+        chaptertutors = chaptertutors.filter(medium__icontains=medium)
     if division:
-        chaptertutor = chaptertutor.filter(division__icontains=division)
+        chaptertutors = chaptertutors.filter(division__icontains=division)
     if district:
-        chaptertutor = chaptertutor.filter(district__icontains=district)
+        chaptertutors = chaptertutors.filter(district__icontains=district)
     if background:
-        chaptertutor = chaptertutor.filter(background__icontains=background)
+        chaptertutors = chaptertutors.filter(background__icontains=background)
+
+
+    approved_appointments = ChapterAppointment.objects.filter(
+        chaptertutor__in=chaptertutors, status='Approved'
+    ).values_list('chaptertutor_id', 'preferred_time')
+
+
+    tutor_approved_time_map = {}
+    for tutor_id, time_id in approved_appointments:
+        tutor_approved_time_map.setdefault(tutor_id, set()).add(time_id)
+
+
+    tutor_slots = {}
+    for tutor in chaptertutors:
+        approved_times = ChapterAppointment.objects.filter(
+            chaptertutor=tutor, status='Approved'
+        ).values_list('preferred_time', flat=True)
+
+        available_times = TimeSlot1.objects.filter(tutor=tutor).exclude(id__in=approved_times)
+        tutor_slots[tutor.id] = [
+            {"id": slot.id, "time": slot.time.strftime("%I:%M %p")}
+            for slot in available_times
+        ]
 
     return render(request, 'tutor_list_chapter.html', {
-        'chaptertutor': chaptertutor,
+        'chaptertutors': chaptertutors,
+        'tutor_slots': tutor_slots,
+        'tutor_slots_json': json.dumps(tutor_slots, cls=DjangoJSONEncoder),
         'specialty': dict(ChapterTutor.SPECIALTY_CHOICES).get(specialty, 'All'),
     })
 
 @login_required
 def book_appointment_general(request, general_tutor_id):
+    generaltutors = get_object_or_404(GeneralTutor, id=general_tutor_id)
+
     if request.method == "POST":
-        generaltutor = get_object_or_404(GeneralTutor, id=general_tutor_id)
         student_name = request.POST.get('student_name')
         phone_number = request.POST.get('phone_number')
         guardian_name = request.POST.get('guardian_name')
@@ -227,15 +241,37 @@ def book_appointment_general(request, general_tutor_id):
         district = request.POST.get('district')
         address = request.POST.get('address')
         preferred_days = request.POST.get('preferred_days')
-        preferred_time = request.POST.get('preferred_time')
+        preferred_time_id = request.POST.get('preferred_time')
+
+        if not (phone_number and phone_number.isdigit() and len(phone_number) == 5):
+            messages.error(request, "Phone number must be a 5-digit integer.")
+            return redirect(request.META.get('HTTP_REFERER', 'tutor_list_general'))
+
+        if not (guardian_phone and guardian_phone.isdigit() and len(guardian_phone) == 5):
+            messages.error(request, "Guardian phone number must be a 5-digit integer.")
+            return redirect(request.META.get('HTTP_REFERER', 'tutor_list_general'))
+
+        if not preferred_time_id:
+            messages.error(request, "Please choose the time from the available options.")
+            return redirect(request.META.get('HTTP_REFERER', 'tutor_list_general'))
+
+        preferred_time = get_object_or_404(TimeSlot, id=preferred_time_id)
+        already_booked = GeneralAppointment.objects.filter(
+            preferred_time=preferred_time,
+            status='Approved'
+        ).exists()
+
+        if already_booked:
+            messages.error(request, "This time slot is already booked.")
+            return redirect(request.META.get('HTTP_REFERER', 'tutor_list_general'))
 
         GeneralAppointment.objects.create(
             user=request.user,
-            generaltutor=generaltutor,
+            generaltutor=generaltutors,
             student_name=student_name,
-            phone_number=phone_number,
+            phone_number=int(phone_number),
             guardian_name=guardian_name,
-            guardian_phone=guardian_phone,
+            guardian_phone=int(guardian_phone),
             class_name=class_name,
             subject=subject,
             division=division,
@@ -244,15 +280,27 @@ def book_appointment_general(request, general_tutor_id):
             preferred_days=preferred_days,
             preferred_time=preferred_time,
         )
+
         messages.success(request, "Appointment booked successfully.")
         return redirect('user_profile')
 
-    return redirect('tutor_list_general')
+
+    generaltutors = GeneralTutor.objects.all()
+
+    for tutor in generaltutors:
+        tutor.available_slots = TimeSlot.objects.filter(tutor=tutor).exclude(
+            id__in=GeneralAppointment.objects.filter(status='Approved')
+            .values_list('preferred_time', flat=True)
+        )
+
+    return render(request, 'tutor_list_general.html', {
+        'generaltutors': generaltutors,
+    })
 
 @login_required
 def book_appointment_chapter(request, chapter_tutor_id):
+    chaptertutors = get_object_or_404(ChapterTutor, id=chapter_tutor_id)
     if request.method == "POST":
-        chaptertutor = get_object_or_404(ChapterTutor, id=chapter_tutor_id)
         student_name = request.POST.get('student_name')
         phone_number = request.POST.get('phone_number')
         guardian_name = request.POST.get('guardian_name')
@@ -264,15 +312,37 @@ def book_appointment_chapter(request, chapter_tutor_id):
         district = request.POST.get('district')
         address = request.POST.get('address')
         preferred_days = request.POST.get('preferred_days')
-        preferred_time = request.POST.get('preferred_time')
+        preferred_time_id = request.POST.get('preferred_time')
+
+        if not (phone_number and phone_number.isdigit() and len(phone_number) == 5):
+            messages.error(request, "Phone number must be a 5-digit integer.")
+            return redirect(request.META.get('HTTP_REFERER', 'tutor_list_chapter'))
+
+        if not (guardian_phone and guardian_phone.isdigit() and len(guardian_phone) == 5):
+            messages.error(request, "Guardian phone number must be a 5-digit integer.")
+            return redirect(request.META.get('HTTP_REFERER', 'tutor_list_chapter'))
+
+        if not preferred_time_id:
+            messages.error(request, "Please choose the time from the available options.")
+            return redirect(request.META.get('HTTP_REFERER', 'tutor_list_chapter'))
+
+        preferred_time = get_object_or_404(TimeSlot1, id=preferred_time_id)
+        already_booked = ChapterAppointment.objects.filter(
+            preferred_time=preferred_time,
+            status='Approved'
+        ).exists()
+
+        if already_booked:
+            messages.error(request, "This time slot is already booked.")
+            return redirect(request.META.get('HTTP_REFERER', 'tutor_list_chapter'))
 
         ChapterAppointment.objects.create(
             user=request.user,
-            chaptertutor=chaptertutor,
+            chaptertutor=chaptertutors,
             student_name=student_name,
-            phone_number=phone_number,
+            phone_number=int(phone_number),
             guardian_name=guardian_name,
-            guardian_phone=guardian_phone,
+            guardian_phone=int(guardian_phone),
             class_name=class_name,
             subject=subject,
             chapter=chapter,
@@ -285,10 +355,22 @@ def book_appointment_chapter(request, chapter_tutor_id):
         messages.success(request, "Appointment booked successfully.")
         return redirect('user_profile')
 
-    return redirect('tutor_list_chapter')
+
+    chaptertutors = ChapterTutor.objects.all()
+
+    for tutor in chaptertutors:
+        tutor.available_slots = TimeSlot1.objects.filter(tutor=tutor).exclude(
+            id__in=ChapterAppointment.objects.filter(status='Approved')
+            .values_list('preferred_time', flat=True)
+        )
+
+    return render(request, 'tutor_list_chapter.html', {
+        'chaptertutors': chaptertutors,
+    })
 
 def edit_appointment_general(request, general_appointment_id):
-    generalappointment = get_object_or_404(GeneralAppointment, id=general_appointment_id )
+    general_appointment = get_object_or_404(GeneralAppointment, id=general_appointment_id)
+    generaltutor = general_appointment.generaltutor
 
     if request.method == 'POST':
         student_name = request.POST.get('student_name')
@@ -300,32 +382,74 @@ def edit_appointment_general(request, general_appointment_id):
         division = request.POST.get('division')
         district = request.POST.get('district')
         address = request.POST.get('address')
-        preferred_days = request.POST.getlist('preferred_days')
-        preferred_time = request.POST.getlist('preferred_time')
+        preferred_days = request.POST.get('preferred_days')
+        preferred_time_id = request.POST.get('preferred_time')
 
-        generalappointment.student_name = student_name
-        generalappointment.phone_number = phone_number
-        generalappointment.guardian_name = guardian_name
-        generalappointment.guardian_phone = guardian_phone
-        generalappointment.class_name = class_name
-        generalappointment.subject = subject
-        generalappointment.division = division
-        generalappointment.district = district
-        generalappointment.address = address
-        generalappointment.preferred_days = preferred_days
-        generalappointment.preferred_time = preferred_time
 
-        generalappointment.save()
+        if not (phone_number.isdigit() and len(phone_number) == 5):
+            messages.error(request, "Phone number must be a 5-digit integer.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        if not (guardian_phone.isdigit() and len(guardian_phone) == 5):
+            messages.error(request, "Guardian phone number must be a 5-digit integer.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+        if preferred_time_id:
+            preferred_time = get_object_or_404(TimeSlot, id=preferred_time_id)
+            already_booked = GeneralAppointment.objects.filter(
+                preferred_time=preferred_time,
+                status='Approved',
+                generaltutor=generaltutor
+            ).exclude(id=general_appointment.id).exists()
+
+            if already_booked:
+                messages.error(request, "This time slot is already booked.")
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+
+            general_appointment.preferred_time = preferred_time
+        else:
+            general_appointment.preferred_time = None
+
+
+        general_appointment.student_name = student_name
+        general_appointment.phone_number = int(phone_number)
+        general_appointment.guardian_name = guardian_name
+        general_appointment.guardian_phone = int(guardian_phone)
+        general_appointment.class_name = class_name
+        general_appointment.subject = subject
+        general_appointment.division = division
+        general_appointment.district = district
+        general_appointment.address = address
+        general_appointment.preferred_days = preferred_days
+
+        general_appointment.save()
 
         messages.success(request, "Appointment updated successfully.")
         return redirect('user_profile')
 
+
+    available_times = TimeSlot.objects.filter(
+        tutor=generaltutor
+    ).exclude(
+        id__in=GeneralAppointment.objects.filter(
+            status='Approved',
+            generaltutor=generaltutor
+        ).exclude(id=general_appointment.id).values_list('preferred_time_id', flat=True)
+    )
+
     return render(request, 'edit_appointment_general.html', {
-        'generalappointment': generalappointment,
+        'general_appointment': general_appointment,
+        'available_time_slots': available_times,
+        'appointment': general_appointment,
     })
 
+
+
 def edit_appointment_chapter(request, chapter_appointment_id):
-    chapterappointment = get_object_or_404(ChapterAppointment, id=chapter_appointment_id )
+    chapter_appointment = get_object_or_404(ChapterAppointment, id=chapter_appointment_id)
+    chaptertutor = chapter_appointment.chaptertutor
+
 
     if request.method == 'POST':
         student_name = request.POST.get('student_name')
@@ -338,29 +462,66 @@ def edit_appointment_chapter(request, chapter_appointment_id):
         division = request.POST.get('division')
         district = request.POST.get('district')
         address = request.POST.get('address')
-        preferred_days = request.POST.getlist('preferred_days')
-        preferred_time = request.POST.getlist('preferred_time')
+        preferred_days = request.POST.get('preferred_days')
+        preferred_time_id = request.POST.get('preferred_time')
 
-        chapterappointment.student_name = student_name
-        chapterappointment.phone_number = phone_number
-        chapterappointment.guardian_name = guardian_name
-        chapterappointment.guardian_phone = guardian_phone
-        chapterappointment.class_name = class_name
-        chapterappointment.subject = subject
-        chapterappointment.chapter = chapter
-        chapterappointment.division = division
-        chapterappointment.district = district
-        chapterappointment.address = address
-        chapterappointment.preferred_days = preferred_days
-        chapterappointment.preferred_time = preferred_time
 
-        chapterappointment.save()
+        if not (phone_number.isdigit() and len(phone_number) == 5):
+            messages.error(request, "Phone number must be a 5-digit integer.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        if not (guardian_phone.isdigit() and len(guardian_phone) == 5):
+            messages.error(request, "Guardian phone number must be a 5-digit integer.")
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+        if preferred_time_id:
+            preferred_time = get_object_or_404(TimeSlot1, id=preferred_time_id)
+            already_booked = ChapterAppointment.objects.filter(
+                preferred_time=preferred_time,
+                status='Approved',
+                chaptertutor=chaptertutor
+            ).exclude(id=chapter_appointment.id).exists()
+
+            if already_booked:
+                messages.error(request, "This time slot is already booked.")
+                return redirect(request.META.get('HTTP_REFERER', '/'))
+
+            chapter_appointment.preferred_time = preferred_time
+        else:
+            chapter_appointment.preferred_time = None
+
+        chapter_appointment.student_name = student_name
+        chapter_appointment.phone_number = int(phone_number)
+        chapter_appointment.guardian_name = guardian_name
+        chapter_appointment.guardian_phone = int(guardian_phone)
+        chapter_appointment.class_name = class_name
+        chapter_appointment.subject = subject
+        chapter_appointment.chapter = chapter
+        chapter_appointment.division = division
+        chapter_appointment.district = district
+        chapter_appointment.address = address
+        chapter_appointment.preferred_days = preferred_days
+
+        chapter_appointment.save()
 
         messages.success(request, "Appointment updated successfully.")
         return redirect('user_profile')
 
+
+    available_times = TimeSlot1.objects.filter(
+        tutor=chaptertutor
+    ).exclude(
+        id__in=ChapterAppointment.objects.filter(
+            status='Approved',
+            chaptertutor=chaptertutor
+        ).exclude(id=chapter_appointment.id).values_list('preferred_time_id', flat=True)
+    )
+
     return render(request, 'edit_appointment_chapter.html', {
-        'chapterappointment': chapterappointment,
+        'chapter_appointment': chapter_appointment,
+        'available_time_slots': available_times,
+        'appointment': chapter_appointment,
     })
 
 def cancel_appointment_general(request, general_appointment_id):
