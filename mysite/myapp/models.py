@@ -466,3 +466,49 @@ class ChapterAppointment(models.Model):
 
     def __str__(self):
         return f"Student Name : {self.student_name} - ChapterWise Teacher Name : {self.chaptertutor.name}"
+
+
+
+
+
+
+#Scholarship
+
+from django.db import models
+
+class Scholarship(models.Model):
+    title = models.CharField(max_length=255)
+    deadline = models.CharField(max_length=100)  # e.g. "March, 2025"
+    pdf = models.FileField(upload_to='scholarship_pdfs/')
+
+    def __str__(self):
+        return self.title
+    
+#scholarship end
+
+#Study Note
+
+from django.db import models
+
+class StudyNote(models.Model):
+    CLASS_CHOICES = [
+        ('6', 'Class 6'),
+        ('7', 'Class 7'),
+        ('8', 'Class 8'),
+        ('9', 'Class 9'),
+        ('10', 'Class 10'),
+        ('11', 'Class 11'),
+        ('12', 'Class 12'),
+    ]
+
+    class_name = models.CharField(max_length=10, choices=CLASS_CHOICES)
+    subject = models.CharField(max_length=100)
+    chapter_number = models.IntegerField()
+    chapter_name = models.CharField(max_length=255)
+    thumbnail = models.ImageField(upload_to='study_notes/thumbnails/')
+    pdf = models.FileField(upload_to='study_notes/pdfs/')
+
+    def __str__(self):
+        return f"{self.class_name} - {self.subject} - Chapter {self.chapter_number}: {self.chapter_name}"
+
+#Study Note end

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Study Notes</title>
+    <link rel="stylesheet" href="{% static 'css/study_notes.css' %}">
+</head>
+<body>
+
+<!-- End Navbar -->
+
+    <div class="study-notes-wrapper">
+    <h1>Study Notes</h1>
+
+    <form method="get" class="filter-form">
+        <select name="class">
+            <option value="">All Classes</option>
+            {% for num in class_choices %}
+                <option value="{{ num }}" {% if class_filter == num %}selected{% endif %}>Class {{ num }}</option>
+            {% endfor %}
+        </select>        
+        <input type="text" name="subject" placeholder="Subject" value="{{ subject_filter }}">
+        <input type="text" name="chapter" placeholder="Chapter Name" value="{{ chapter_filter }}">
+        <button type="submit">Filter</button>
+    </form>
+
+    <div class="note-card-container">
+        {% for note in notes %}
+            <div class="note-card">
+                <img src="{{ note.thumbnail.url }}" alt="Thumbnail">
+                <h3>Class {{ note.class_name }} - {{ note.subject }}</h3>
+                <p>Chapter {{ note.chapter_number }}: {{ note.chapter_name }}</p>
+                <a href="{{ note.pdf.url }}" target="_blank" class="view-btn">View PDF</a>
+            </div>
+        {% empty %}
+            <p>No study notes found.</p>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>
+{% endblock %}

@@ -334,3 +334,50 @@ def cancel_appointment_chapter(request, chapter_appointment_id):
 
     messages.success(request, "Appointment canceled successfully.")
     return redirect('user_profile')
+
+
+
+
+
+#scholarship
+
+from django.shortcuts import render
+from .models import Scholarship
+
+def scholarship_list(request):
+    scholarships = Scholarship.objects.all()
+    return render(request, 'scholarship_list.html', {'scholarships': scholarships})
+
+#end scholarship
+
+#Study note
+
+from django.shortcuts import render
+from .models import StudyNote
+
+@login_required
+def study_notes(request):
+    class_filter = request.GET.get('class', '')
+    subject_filter = request.GET.get('subject', '')
+    chapter_filter = request.GET.get('chapter', '')
+
+    notes = StudyNote.objects.all()
+
+    if class_filter:
+        notes = notes.filter(class_name=class_filter)
+    if subject_filter:
+        notes = notes.filter(subject__icontains=subject_filter)
+    if chapter_filter:
+        notes = notes.filter(chapter_name__icontains=chapter_filter)
+
+    context = {
+        'notes': notes,
+        'class_filter': class_filter,
+        'subject_filter': subject_filter,
+        'chapter_filter': chapter_filter,
+        'class_choices': ['6', '7', '8', '9', '10', '11', '12'],  # <- Add this
+    }
+
+    return render(request, 'study_notes.html', context)
+
+#Study notes end

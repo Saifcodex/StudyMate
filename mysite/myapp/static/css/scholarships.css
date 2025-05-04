@@ -1,0 +1,40 @@
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.scholarship-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.scholarship-table tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.scholarship-table td {
+    padding: 12px;
+    vertical-align: top;
+}
+
+.scholarship-table a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.scholarship-table a:hover {
+    text-decoration: underline;
+}
+
+.scholarship-table td:last-child {
+    text-align: right;
+    white-space: nowrap;
+}

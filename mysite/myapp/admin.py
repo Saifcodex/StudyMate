@@ -6,3 +6,8 @@ admin.site.register(GeneralTutor)
 admin.site.register(ChapterTutor)
 admin.site.register(GeneralAppointment)
 admin.site.register(ChapterAppointment)
+
+#scholarship
+admin.site.register(Scholarship)
+#study notes
+admin.site.register(StudyNote)

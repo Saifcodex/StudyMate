@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'css/scholarships.css' %}">
+
+<div class="container">
+    <h2>Scholarships</h2>
+    <table class="scholarship-table">
+        <tbody>
+        {% for scholarship in scholarships %}
+            <tr>
+                <td><a href="{{ scholarship.pdf.url }}" target="_blank">{{ scholarship.title }}</a></td>
+                <td>{{ scholarship.deadline }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

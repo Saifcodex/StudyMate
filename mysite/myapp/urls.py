@@ -31,6 +31,12 @@ urlpatterns = [
     path('book_appointment_chapter/<int:chapter_tutor_id>/', views.book_appointment_chapter, name='book_appointment_chapter'),
     path('edit_appointment_chapter/<int:chapter_appointment_id>/', views.edit_appointment_chapter, name='edit_appointment_chapter'),
     path('cancel_appointment_chapter/<int:chapter_appointment_id>/', views.cancel_appointment_chapter, name='cancel_appointment_chapter'),
+    # path('books/', views.book_list, name='book_list'),
+
+    #scholarship
+    path('scholarships/', views.scholarship_list, name='scholarship_list'),
+    #Study notes
+    path('study-notes/', views.study_notes, name='study_notes'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
