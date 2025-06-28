@@ -39,25 +39,7 @@
 
 ---
 
-## 🧪 Project Structure
+## 📄 License
+This project is licensed under the MIT License.
 
-```bash
-StudyMate/
-│
-├── templates/
-│   ├── tutor_list_general.html
-│   ├── book_appointment_general.html
-│   ├── edit_appointment_general.html
-│   └── ...
-│
-├── static/
-│   └── css/js/assets
-│
-├── studymate_app/
-│   ├── models.py
-│   ├── views.py
-│   ├── urls.py
-│   └── forms.py
-│
-├── manage.py
-└── README.md
+
