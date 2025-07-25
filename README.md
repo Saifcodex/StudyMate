@@ -38,7 +38,7 @@
 - **Version Control**: Git, GitHub
 
 ---
-## Project Screenshot
+## Project Screenshots
 
 <img width="1034" height="839" alt="6" src="https://github.com/user-attachments/assets/27791830-129b-4d15-8c3e-09ef183568a5" />
 <img width="645" height="420" alt="7" src="https://github.com/user-attachments/assets/68c239e4-93d7-4eb1-a433-90f2fde16961" />
